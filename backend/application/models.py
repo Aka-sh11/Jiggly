@@ -11,23 +11,19 @@ class Users(db.Model):
     password = db.Column(db.String, nullable=False)
     email = db.Column(db.String, nullable=False, unique=True)
     blacklisted = db.Column(db.Boolean(), default=False)
+    role_id = db.Column(db.Integer, db.ForeignKey("role.id"), nullable=False)
     songs = db.relationship('Songs', backref='uploader', lazy=True)
     playlists = db.relationship('Playlist', backref='user', lazy=True)
     albums = db.relationship('Album', backref='user', lazy=True)
     ratings = db.relationship('Rating', backref='user', lazy=True)
-    roles = db.relationship('Role', secondary='roles_users', backref= db.backref('user', lazy='dynamic'))
+    roles = db.relationship('Role', backref='user', lazy=True)
     
 class Role(db.Model):
     __tablename__ = 'role'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True)
     description = db.Column(db.String(100))
-    
-class RolesUsers(db.Model):
-    __tablename__ = 'roles_users'
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column('user_id', db.Integer, db.ForeignKey('user.id'))
-    role_id = db.Column('role_id', db.Integer, db.ForeignKey('role.id'))
+    users = db.relationship('Users', backref='role', lazy=True)
     
 class Songs(db.Model):
     __tablename__ = 'songs'

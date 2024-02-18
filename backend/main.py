@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_restful import Api
 from application.models import db
 from config import DevelopmentConfig
 from application.apis import api

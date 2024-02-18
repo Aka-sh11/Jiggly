@@ -1,0 +1,3 @@
+1. in song api, accept user_id from currently logged in user
+2. implement RBAC
+3. implement jwt
