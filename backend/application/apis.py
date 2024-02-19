@@ -52,6 +52,13 @@ song_fields = {
     'user_id': fields.Integer
 }
 
+playlist_fields = {
+    'id': fields.Integer,
+    'name': fields.String,
+    'user_id': fields.Integer,
+    'songs': fields.List(fields.Integer)
+}
+
 user_parser = reqparse.RequestParser(bundle_errors=True)
 user_parser.add_argument('username', type=str, required=True, help="Username cannot be blank!")
 user_parser.add_argument('password', type=str, required=True, help="Password cannot be blank!")
@@ -67,6 +74,10 @@ song_parser.add_argument('genre', type=str, required=True, help="Genre cannot be
 song_parser.add_argument('filename', type=str, required=True, help="Filename cannot be blank!")
 song_parser.add_argument('user_id', type=int, required=True, help="User ID cannot be blank!")
 
+playlist_parser = reqparse.RequestParser()
+playlist_parser.add_argument('name', type=str, required=True, help="Name cannot be blank!")
+playlist_parser.add_argument('user_id', type=int, required=True, help="User ID cannot be blank!")
+playlist_parser.add_argument('songs', type=int, action='append')
 
 class UserAPI(Resource):
     @marshal_with(user_fields)
@@ -172,5 +183,87 @@ class SongAPI(Resource):
         return '', 204
 
 
+class PlaylistAPI(Resource):
+    @marshal_with(playlist_fields)
+    def get(self, id):
+        playlist = Playlist.query.get(id)
+        if playlist is None:
+            raise NotFound("Playlist {} doesn't exist".format(id))
+        songs = Songs_in_Playlist.query.filter_by(playlist_id=id).all()
+        return {"id": playlist.id, "name": playlist.name, "user_id": playlist.user_id, "songs": [song.song_id for song in songs]}
+
+    @marshal_with(playlist_fields)
+    def post(self):
+        args = playlist_parser.parse_args()
+
+            # Check if user_id exists
+        user = Users.query.get(args['user_id'])
+        if user is None:
+            raise NotFound("User with id {} doesn't exist".format(args['user_id']))
+        # Check for unique name & user_id
+        existing_playlist = Playlist.query.filter_by(name=args['name'], user_id=args['user_id']).first()
+        if existing_playlist:
+            raise AlreadyExists("Playlist with this name and user_id already exists")
+
+        new_playlist = Playlist(name=args['name'], user_id=args['user_id'])
+        db.session.add(new_playlist)
+        db.session.commit()
+        
+        song_ids = []
+        for song_id in args['songs']:
+            song = Songs.query.get(song_id)
+            if song is None:
+                raise NotFound("Song with id {} doesn't exist".format(song_id))
+            new_song_in_playlist = Songs_in_Playlist(playlist_id=new_playlist.id, song_id=song_id)
+            db.session.add(new_song_in_playlist)
+            song_ids.append(song_id)
+
+        new_playlist.songs = song_ids
+        db.session.commit()
+
+        return new_playlist, 201
+
+    @marshal_with(playlist_fields)
+    def put(self, id):
+        args = playlist_parser.parse_args()
+        playlist = Playlist.query.get(id)
+        if playlist is None:
+            raise NotFound("Playlist {} doesn't exist".format(id))
+
+            # Check if user_id exists
+        user = Users.query.get(args['user_id'])
+        if user is None:
+            raise NotFound("User with id {} doesn't exist".format(args['user_id']))
+        # Check for unique name & user_id
+        existing_playlist = Playlist.query.filter_by(name=args['name'], user_id=args['user_id']).first()
+        if existing_playlist and existing_playlist.id != id:
+            raise AlreadyExists("Another playlist with this name and user_id already exists")
+
+        playlist.name = args['name']
+        playlist.user_id = args['user_id']
+        Songs_in_Playlist.query.filter_by(playlist_id=id).delete()
+        song_ids = []
+        for song_id in args['songs']:
+            song = Songs.query.get(song_id)
+            if song is None:
+                raise NotFound("Song with id {} doesn't exist".format(song_id))
+            new_song_in_playlist = Songs_in_Playlist(playlist_id=playlist.id, song_id=song_id)
+            db.session.add(new_song_in_playlist)
+            song_ids.append(song_id)
+        playlist.songs = song_ids
+        db.session.commit()
+        return playlist, 201
+
+    def delete(self, id):
+        playlist = Playlist.query.get(id)
+        if playlist is None:
+            raise NotFound("Playlist {} doesn't exist".format(id))
+        Songs_in_Playlist.query.filter_by(playlist_id=id).delete()
+        db.session.delete(playlist)
+        db.session.commit()
+        return '', 204
+
+
 api.add_resource(UserAPI, '/user/<int:user_id>','/user')
 api.add_resource(SongAPI, '/song/<int:song_id>', '/song')
+api.add_resource(PlaylistAPI, '/playlist/<int:id>', '/playlist')
