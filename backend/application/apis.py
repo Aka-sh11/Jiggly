@@ -1,4 +1,4 @@
-from flask import request, make_response, jsonify
+from flask import make_response, jsonify
 from flask_restful import Api, NotFound, Resource, fields, marshal_with, reqparse
 from werkzeug.exceptions import HTTPException
 from werkzeug.security import generate_password_hash
@@ -59,6 +59,20 @@ playlist_fields = {
     'songs': fields.List(fields.Integer)
 }
 
+album_fields = {
+    'id': fields.Integer,
+    'name': fields.String,
+    'user_id': fields.Integer,
+    'songs': fields.List(fields.Integer)
+}
+
+rating_fields = {
+    'id': fields.Integer,
+    'rating': fields.Integer,
+    'user_id': fields.Integer,
+    'song_id': fields.Integer
+}
+
 user_parser = reqparse.RequestParser(bundle_errors=True)
 user_parser.add_argument('username', type=str, required=True, help="Username cannot be blank!")
 user_parser.add_argument('password', type=str, required=True, help="Password cannot be blank!")
@@ -74,10 +88,21 @@ song_parser.add_argument('genre', type=str, required=True, help="Genre cannot be
 song_parser.add_argument('filename', type=str, required=True, help="Filename cannot be blank!")
 song_parser.add_argument('user_id', type=int, required=True, help="User ID cannot be blank!")
 
-playlist_parser = reqparse.RequestParser()
+playlist_parser = reqparse.RequestParser(bundle_errors=True)
 playlist_parser.add_argument('name', type=str, required=True, help="Name cannot be blank!")
 playlist_parser.add_argument('user_id', type=int, required=True, help="User ID cannot be blank!")
 playlist_parser.add_argument('songs', type=int, action='append')
+
+album_parser = reqparse.RequestParser(bundle_errors=True)
+album_parser.add_argument('name', type=str, required=True, help="Name cannot be blank!")
+album_parser.add_argument('user_id', type=int, required=True, help="User ID cannot be blank!")
+album_parser.add_argument('songs', type=int, action='append')
+
+rating_parser = reqparse.RequestParser(bundle_errors=True)
+rating_parser.add_argument('rating', type=int, help='Rating must be between 0 and 5', 
+                           required=True, choices=range(6))
+rating_parser.add_argument('user_id', type=int, help='User ID cannot be blank', required=True)
+rating_parser.add_argument('song_id', type=int, help='Song ID cannot be blank', required=True)
 
 class UserAPI(Resource):
     @marshal_with(user_fields)
@@ -263,7 +288,133 @@ class PlaylistAPI(Resource):
         db.session.commit()
         return '', 204
 
+class AlbumAPI(Resource):
+    @marshal_with(album_fields)
+    def get(self, id):
+        album = Album.query.get(id)
+        if album is None:
+            raise NotFound("Album {} doesn't exist".format(id))
+        songs = Songs_in_Album.query.filter_by(album_id=id).all()
+        return {"id": album.id, "name": album.name, "user_id": album.user_id, "songs": [song.song_id for song in songs]}
+
+
+    @marshal_with(album_fields)
+    def post(self):
+        args = album_parser.parse_args()
+
+            # Check if user_id exists
+        user = Users.query.get(args['user_id'])
+        if user is None:
+            raise NotFound("User with id {} doesn't exist".format(args['user_id']))
+        # Check for unique name & user_id
+        existing_album = Album.query.filter_by(name=args['name'], user_id=args['user_id']).first()
+        if existing_album:
+            raise AlreadyExists("Album with this name and user_id already exists")
+
+        new_album = Album(name=args['name'], user_id=args['user_id'])
+        db.session.add(new_album)
+        db.session.commit()
+        
+        song_ids = []
+        for song_id in args['songs']:
+            song = Songs.query.get(song_id)
+            if song is None:
+                raise NotFound("Song with id {} doesn't exist".format(song_id))
+            new_song_in_album = Songs_in_Album(album_id=new_album.id, song_id=song_id)
+            db.session.add(new_song_in_album)
+            song_ids.append(song_id)
+
+        new_album.songs = song_ids
+        db.session.commit()
+
+        return new_album, 201
+
+    @marshal_with(album_fields)
+    def put(self, id):
+        args = album_parser.parse_args()
+        album = Album.query.get(id)
+        if album is None:
+            raise NotFound("Album {} doesn't exist".format(id))
+
+            # Check if user_id exists
+        user = Users.query.get(args['user_id'])
+        if user is None:
+            raise NotFound("User with id {} doesn't exist".format(args['user_id']))
+        # Check for unique name
+        existing_album = Album.query.filter_by(name=args['name']).first()
+        if existing_album and existing_album.id != id:
+            raise AlreadyExists("Another Album with this name already exists")
+
+        album.name = args['name']
+        album.user_id = args['user_id']
+        Songs_in_Album.query.filter_by(album_id=id).delete()
+        song_ids = []
+        for song_id in args['songs']:
+            song = Songs.query.get(song_id)
+            if song is None:
+                raise NotFound("Song with id {} doesn't exist".format(song_id))
+            new_song_in_album = Songs_in_Album(album_id=album.id, song_id=song_id)
+            db.session.add(new_song_in_album)
+            song_ids.append(song_id)
+        album.songs = song_ids
+        db.session.commit()
+        return album, 201
+    
+    def delete(self, id):
+        album = Album.query.get(id)
+        if album is None:
+            raise NotFound("Album {} doesn't exist".format(id))
+        Songs_in_Album.query.filter_by(album_id=id).delete()
+        db.session.delete(album)
+        db.session.commit()
+        return '', 204
+
+
+class RatingAPI(Resource):
+    @marshal_with(rating_fields)
+    def get(self, rating_id):
+        rating = Rating.query.get(rating_id)
+        if not rating:
+            raise NotFound("Rating not found")
+        return rating
+
+    @marshal_with(rating_fields)
+    def post(self):
+        args = rating_parser.parse_args()
+        user = Users.query.get(args['user_id'])
+        song = Songs.query.get(args['song_id'])
+        if not user :
+            raise BadRequest("User ID does not exist")
+        if not song :
+            raise BadRequest("Song ID does not exist")
+        new_rating = Rating(rating=args['rating'], user_id=args['user_id'], song_id=args['song_id'])
+        db.session.add(new_rating)
+        db.session.commit()
+        return new_rating, 201
+
+    @marshal_with(rating_fields)
+    def put(self, rating_id):
+        args = rating_parser.parse_args()
+        rating = Rating.query.get(rating_id)
+        if not rating:
+            raise NotFound("Rating not found")
+        rating.rating = args['rating']
+        rating.user_id = args['user_id']
+        rating.song_id = args['song_id']
+        db.session.commit()
+        return rating
+
+    def delete(self, rating_id):
+        rating = Rating.query.get(rating_id)
+        if not rating:
+            raise NotFound("Rating not found")
+        db.session.delete(rating)
+        db.session.commit()
+        return '', 204
+
 
 api.add_resource(UserAPI, '/user/<int:user_id>','/user')
 api.add_resource(SongAPI, '/song/<int:song_id>', '/song')
 api.add_resource(PlaylistAPI, '/playlist/<int:id>', '/playlist')
+api.add_resource(AlbumAPI, '/album/<int:id>', '/album')
+api.add_resource(RatingAPI, '/ratings/<int:rating_id>', '/ratings')
