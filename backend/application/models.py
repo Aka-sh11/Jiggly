@@ -18,6 +18,16 @@ class Users(db.Model):
     ratings = db.relationship('Rating', backref='user', lazy=True)
     roles = db.relationship('Role', backref='user', lazy=True)
     
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'password': self.password,
+            'email': self.email,
+            'blacklisted': self.blacklisted,
+            'role_id': self.role_id,
+        }
+    
 class Role(db.Model):
     __tablename__ = 'role'
     id = db.Column(db.Integer, primary_key=True)

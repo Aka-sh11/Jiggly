@@ -3,7 +3,8 @@ from flask_restful import Api, NotFound, Resource, fields, marshal_with, reqpars
 from werkzeug.exceptions import HTTPException
 from werkzeug.security import generate_password_hash
 from .models import db, Users, Role ,Songs, Playlist, Songs_in_Playlist, Album, Songs_in_Album, Rating
-
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from .jwt import access
 
 api = Api(prefix='/api')
 
@@ -105,18 +106,26 @@ rating_parser.add_argument('user_id', type=int, help='User ID cannot be blank', 
 rating_parser.add_argument('song_id', type=int, help='Song ID cannot be blank', required=True)
 
 class UserAPI(Resource):
+    @jwt_required()
     @marshal_with(user_fields)
-    def get(self, user_id):
-        user = Users.query.get(user_id)
-        if not user:
-            raise NotFound("User not found")
-        return user
+    def get(self, user_id=None):
+        if user_id:
+            user = Users.query.get(user_id)
+            if not user:
+                raise NotFound("User not found")
+            return user
+        else:
+            users = Users.query.all()
+            return users
+
 
     @marshal_with(user_fields)
     def post(self):
         data = user_parser.parse_args()
         if Users.query.filter_by(username=data['username']).first():
             raise AlreadyExists("Username already exists")
+        if Users.query.filter_by(email=data['email']).first():
+            raise AlreadyExists("Email already exists")
         role = Role.query.filter_by(name=data['role']).first()
         if not role:
             raise NotFound("Role not found")
@@ -126,12 +135,17 @@ class UserAPI(Resource):
         db.session.commit()
         return new_user, 201
 
+    @jwt_required()
     @marshal_with(user_fields)
     def put(self, user_id):
         data = user_parser.parse_args()
         user = Users.query.get(user_id)
         if not user:
             raise NotFound("User not found")
+        if Users.query.filter(Users.username == data['username'], Users.id != user_id).first():
+            raise AlreadyExists("Username already exists")
+        if Users.query.filter(Users.email == data['email'], Users.id != user_id).first():
+            raise AlreadyExists("Email already exists")
         role = Role.query.filter_by(name=data['role']).first()
         if not role:
             raise NotFound("Role not found")
@@ -141,7 +155,8 @@ class UserAPI(Resource):
         user.role_id = role.id
         db.session.commit()
         return user
-
+    
+    @jwt_required()
     def delete(self, user_id):
         user = Users.query.get(user_id)
         if not user:
@@ -153,6 +168,7 @@ class UserAPI(Resource):
 
 
 class SongAPI(Resource):
+    @jwt_required()
     @marshal_with(song_fields)
     def get(self, song_id):
         song = Songs.query.get(song_id)
@@ -160,6 +176,8 @@ class SongAPI(Resource):
             raise NotFound("Song not found")
         return song
 
+    @jwt_required()
+    @access(["Creator"])
     @marshal_with(song_fields)
     def post(self):
         data = song_parser.parse_args()
@@ -176,6 +194,7 @@ class SongAPI(Resource):
         db.session.commit()
         return new_song, 201
 
+    @jwt_required()
     @marshal_with(song_fields)
     def put(self, song_id):
         data = song_parser.parse_args()
@@ -198,7 +217,8 @@ class SongAPI(Resource):
         db.session.commit()
         return song
 
-
+    @jwt_required()
+    @access(["Creator", "Admin"])
     def delete(self, song_id):
         song = Songs.query.get(song_id)
         if not song:
@@ -209,6 +229,7 @@ class SongAPI(Resource):
 
 
 class PlaylistAPI(Resource):
+    @jwt_required()
     @marshal_with(playlist_fields)
     def get(self, id):
         playlist = Playlist.query.get(id)
@@ -217,6 +238,7 @@ class PlaylistAPI(Resource):
         songs = Songs_in_Playlist.query.filter_by(playlist_id=id).all()
         return {"id": playlist.id, "name": playlist.name, "user_id": playlist.user_id, "songs": [song.song_id for song in songs]}
 
+    @jwt_required()
     @marshal_with(playlist_fields)
     def post(self):
         args = playlist_parser.parse_args()
@@ -248,6 +270,7 @@ class PlaylistAPI(Resource):
 
         return new_playlist, 201
 
+    @jwt_required()
     @marshal_with(playlist_fields)
     def put(self, id):
         args = playlist_parser.parse_args()
@@ -279,6 +302,7 @@ class PlaylistAPI(Resource):
         db.session.commit()
         return playlist, 201
 
+    @jwt_required()
     def delete(self, id):
         playlist = Playlist.query.get(id)
         if playlist is None:
@@ -289,6 +313,7 @@ class PlaylistAPI(Resource):
         return '', 204
 
 class AlbumAPI(Resource):
+    @jwt_required()
     @marshal_with(album_fields)
     def get(self, id):
         album = Album.query.get(id)
@@ -298,6 +323,7 @@ class AlbumAPI(Resource):
         return {"id": album.id, "name": album.name, "user_id": album.user_id, "songs": [song.song_id for song in songs]}
 
 
+    @jwt_required()
     @marshal_with(album_fields)
     def post(self):
         args = album_parser.parse_args()
@@ -329,6 +355,7 @@ class AlbumAPI(Resource):
 
         return new_album, 201
 
+    @jwt_required()
     @marshal_with(album_fields)
     def put(self, id):
         args = album_parser.parse_args()
@@ -359,7 +386,8 @@ class AlbumAPI(Resource):
         album.songs = song_ids
         db.session.commit()
         return album, 201
-    
+
+    @jwt_required()    
     def delete(self, id):
         album = Album.query.get(id)
         if album is None:
@@ -371,6 +399,7 @@ class AlbumAPI(Resource):
 
 
 class RatingAPI(Resource):
+    @jwt_required()
     @marshal_with(rating_fields)
     def get(self, rating_id):
         rating = Rating.query.get(rating_id)
@@ -378,6 +407,7 @@ class RatingAPI(Resource):
             raise NotFound("Rating not found")
         return rating
 
+    @jwt_required()
     @marshal_with(rating_fields)
     def post(self):
         args = rating_parser.parse_args()
@@ -392,6 +422,7 @@ class RatingAPI(Resource):
         db.session.commit()
         return new_rating, 201
 
+    @jwt_required()
     @marshal_with(rating_fields)
     def put(self, rating_id):
         args = rating_parser.parse_args()
@@ -404,6 +435,7 @@ class RatingAPI(Resource):
         db.session.commit()
         return rating
 
+    @jwt_required()
     def delete(self, rating_id):
         rating = Rating.query.get(rating_id)
         if not rating:
