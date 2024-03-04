@@ -36,20 +36,6 @@
   --section-gap: 160px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-background: var(--vt-c-black);
-    --color-background-soft: var(--vt-c-black-soft);
-    --color-background-mute: var(--vt-c-black-mute);
-
-    --color-border: var(--vt-c-divider-dark-2);
-    --color-border-hover: var(--vt-c-divider-dark-1);
-
-    --color-heading: var(--vt-c-text-dark-1);
-    --color-text: var(--vt-c-text-dark-2);
-  }
-}
-
 *,
 *::before,
 *::after {
@@ -58,14 +44,18 @@
   font-weight: normal;
 }
 
+/* :root {
+  --app-width: 98vw;
+  --app-height: 100vh;
+  --header-height: 60px;
+  --footer-height: 60px;
+  --main-height: calc(var(--app-height) - var(--header-height) - var(--footer-height));
+
+} */
+
 body {
-  min-height: 100vh;
-  color: var(--color-text);
-  background: var(--color-background);
-  transition:
-    color 0.5s,
-    background-color 0.5s;
-  line-height: 1.6;
+  /* min-height: 100vh; */
+  background: linear-gradient(to right, lightblue, mistyrose);
   font-family:
     Inter,
     -apple-system,
@@ -79,7 +69,7 @@ body {
     'Droid Sans',
     'Helvetica Neue',
     sans-serif;
-  font-size: 15px;
+  font-size: 14px;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
