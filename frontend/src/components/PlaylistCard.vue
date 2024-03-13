@@ -3,7 +3,7 @@
         <div class="card-body">
             <div class="card-title">playlist.title</div>
             <div class="card-content">
-                <router-link :to="`/user/playlist/${album.id}`" class="btn btn-info btn-sm">View Tracks</router-link>
+                <router-link :to="`/user/playlist/playlist_name`" class="btn btn-info btn-sm">View Tracks</router-link>
             </div>
         </div>
     </div>
@@ -15,7 +15,8 @@
     background-image: url('../assets/card/9.jpg');
     background-size: cover;
     border-radius: 25px;
-    border: 1px solid magenta;
+    border: 1px solid aquamarine;
+    margin-top: 12px;
 }
 
 .btn {
@@ -23,7 +24,7 @@
 }
 
 .card-title {
-    color: deeppink;
+    color: darkturquoise;
 }
 
 .card-body {

@@ -28,7 +28,7 @@
                             <router-link to="#" class="nav-link">Profile</router-link>
                         </li> <strong>⚕️</strong>
                         <li class="nav-item">
-                            <router-link to="#" class="nav-link">Logout</router-link>
+                            <router-link to="/" class="nav-link">Logout</router-link>
                         </li>
                     </ul>
                 </div>

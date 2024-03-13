@@ -14,11 +14,11 @@
         <SongCard v-for="n in 4" :key="n" />
       </div>
     </div>
-    <div class="row-fluid">
+    <div class="row-fluid" style="padding-top: 15px;">
       <div class="d-flex justify-content-between">
         <h5 class="text-start">Playlist</h5>
         <div class="text-end">
-          <router-link to="/playlist/create" class="btn btn-secondary btn-sm" style="background: cornflowerblue">
+          <router-link to="/user/playlist/create" class="btn btn-secondary btn-sm" style="background: cornflowerblue">
             New Playlist
           </router-link>
         </div>
@@ -39,7 +39,7 @@
       <div class="d-flex justify-content-between">
         <h5 class="text-start">Genres</h5>
       </div>
-      <div class="col">
+      <div class="col" style="padding-bottom: 10px;">
         <SongCard v-for="n in 4" :key="n" />
       </div>
     </div>
@@ -50,13 +50,13 @@
 .col {
   display: flex;
   justify-content: space-around;
-  padding-top: 10px;
+  /* padding-top: 10px; */
 }
 
 .col-a {
   display: flex;
   justify-content: space-evenly;
-  padding-top: 8px;
+  /* padding-top: 8px; */
 }
 
 .row-fluid {

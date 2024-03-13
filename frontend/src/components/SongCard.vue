@@ -7,7 +7,7 @@
                     <source :src="`/static/audio/${song.filename}`" type="audio/mpeg">
                 </audio>
                 <br />
-                <router-link :to="`/song_details/${song.id}`" class="btn btn-info btn-sm">Read Lyrics</router-link>
+                <router-link :to="`/song/song_name`" class="btn btn-info btn-sm">Read Lyrics</router-link>
             </div>
         </div>
     </div>
@@ -20,7 +20,10 @@
     background-size: cover;
     border-radius: 25px;
     border: 1px solid magenta;
+    margin-top: 12px;
+    margin-bottom: 12px;
 }
+
 .card-title {
     color: deeppink;
 }

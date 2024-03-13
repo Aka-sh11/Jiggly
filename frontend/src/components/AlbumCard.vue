@@ -3,7 +3,7 @@
         <div class="card-body">
             <div class="card-title">album.title</div>
             <div class="card-content">
-                <router-link :to="`/user/album/${album.id}`" class="btn btn-info btn-sm">View Tracks</router-link>
+                <router-link :to="`/album/album_name`" class="btn btn-info btn-sm">View Tracks</router-link>
             </div>
         </div>
     </div>
@@ -12,14 +12,20 @@
 
 <style scoped>
 .card {
-    background-image: url('../assets/card/2.jpg');
+    background-image: url('../assets/card/9.jpg');
     background-size: cover;
     border-radius: 25px;
-    border: 1px solid magenta;
+    border: 1px solid aquamarine;
+    margin-top: 10px;
+
+}
+
+.btn {
+    background: cadetblue;
 }
 
 .card-title {
-    color: deeppink;
+    color: darkturquoise;
 }
 
 .card-body {

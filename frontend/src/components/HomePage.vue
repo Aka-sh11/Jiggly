@@ -1,9 +1,3 @@
-<script>
-export default {
-    name: 'JigglyCard',
-}
-</script>
-
 <template>
     <div class="bg">
         <header>
@@ -34,19 +28,21 @@ export default {
 
 <style scoped>
 .bg {
-        background-image: url('../assets/bg5.jpg');
-        background-position: center;
-        background-repeat: no-repeat;
-        background-size: cover;
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-    }
-img{
+    background-image: url('../assets/bg5.jpg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+img {
     width: 4%;
 }
+
 main {
     text-align: center;
     align-items: center;
@@ -56,10 +52,12 @@ main {
     justify-content: space-between;
     width: 100%;
 }
+
 .content {
     flex: 1;
     text-align: center;
 }
+
 .actions {
     flex: 1;
     display: flex;
@@ -67,22 +65,35 @@ main {
     align-items: center;
     padding-top: 5%;
 }
-h1, h3 {
+
+h1,
+h3 {
     display: inline;
 }
-h1{
-    background: -webkit-linear-gradient(315deg,#dc627c 25%,#647eff);
+
+h1 {
+    background: -webkit-linear-gradient(315deg, #dc627c 25%, #647eff);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
-h3{
-    background: -webkit-linear-gradient(315deg,#647eff 25%,#dc627c);
+
+h3 {
+    background: -webkit-linear-gradient(315deg, #647eff 25%, #dc627c);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
-p{
+
+p {
     text-align: center;
 }
 </style>
+
+<script>
+export default {
+    name: 'JigglyCard',
+}
+</script>
+
+
