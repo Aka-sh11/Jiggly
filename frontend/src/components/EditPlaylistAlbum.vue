@@ -1,10 +1,10 @@
 <template>
     <NavBar />
-    <form class="container-fluid" @submit.prevent="EditPlaylist">
+    <form class="container-fluid" @submit.prevent="EditPlaylistAlbum">
         <div class="container">
             <div class="header">
-                <h4>Edit Playlist</h4>
-                <input v-model="playlistName" type="text" class="form-control" placeholder="Playlist.Name" />
+                <h4>{{ heading }}</h4>
+                <input v-model="playlistName" type="text" class="form-control" :placeholder='placeholder' />
             </div>
             <div class="centered">
                 <input type="submit" class="btn btn-success" value="Edit" />
@@ -112,8 +112,8 @@ input {
 
 <script>
 import NavBar from '@/components/NavBar.vue'
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 
 export default {
     name: 'EditPlaylistAlbum',
@@ -121,19 +121,41 @@ export default {
         NavBar,
     },
     setup() {
-        const playlistName = ref('')
+        const Name = ref('')
         const router = useRouter()
+        const route = useRoute()
+        const heading = ref('')
+        const placeholder = ref('')
 
-        const EditPlaylist = async () => {
-            // Call your API to create a new playlist
-            console.log(`Edit playlist: ${playlistName.value}`)
-            // If form submission is successful, redirect to /user/dashboard
-            router.push('/user/playlist/playlist_name')
+        const EditPlaylistAlbum = async () => {
+            // Call your API to create a edit playlist/album
+            if (route.name === 'edit-playlist') {
+                console.log(`Edited playlist: ${Name.value}`)
+            } else if (route.name === 'edit-album') {
+                console.log(`Edited album: ${Name.value}`)
+            }
+            // If form submission is successful, redirect to dashboard
+            if (route.name === 'edit-playlist') {
+                router.push('/user/dashboard')
+            } else if (route.name === 'edit-album') {
+                router.push('/creator/dashboard')
+            }
         }
+        onMounted(() => {
+            if (route.name === 'edit-playlist') {
+                heading.value = 'Edit Playlist'
+                placeholder.value = 'Playlist.Name'
+            } else if (route.name === 'edit-album') {
+                heading.value = 'Edit Album'
+                placeholder.value = 'Album.Name'
+            }
+        })
 
         return {
-            playlistName,
-            EditPlaylist
+            Name,
+            EditPlaylistAlbum,
+            heading,
+            placeholder
         }
     }
 }

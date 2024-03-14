@@ -5,11 +5,19 @@
             <div class="box">
                 <div class="header">
                     <h2>song.title</h2>
-                    <!-- add rating system here -->
+                    <nav>
+                        <button class="btn btn-info btn-sm" @click="rateSong"
+                            style="background-color: cadetblue;">Rate</button>
+
+                        <div v-if="showRating">
+                            <input type="range" id="rating" v-model.number="rating" min="0" max="5">
+                            <span>{{ rating }}</span>
+                        </div>
+                    </nav>
                 </div>
                 <h6>song.singer | song.date[: 4]</h6>
                 <audio controls>
-                    <source :src="`/static/audio/song.filename`" type="audio/mpeg">
+                    <source :src="`/static/audio/song.filename`" type="audio/mpeg" />
                 </audio>
                 <div class="box" style="background-color: gainsboro;">
                     <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Possimus voluptatibus expedita eligendi
@@ -18,7 +26,8 @@
                 </div>
                 <br />
                 <div class="emoji" v-for="(item, index) in items" :key="index">
-                    <button @click="animate(index)" :class="{ pop: item.pop, float: item.float }">
+                    <button @click="animate(index)" :class="{ pop: item.pop, float: item.float }"
+                        style="font-size: 1.2rem;">
                         {{ item.icon }}
                     </button>
                 </div>
@@ -28,13 +37,20 @@
 </template>
 
 <style scoped>
+nav {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+}
+
 .emoji {
     display: inline-flex;
     justify-content: flex-end;
 }
 
 button {
-    font-size: 1.2rem;
+    /* font-size: 1.2rem; */
     padding: 8px;
     /* margin: 5px; */
     border: none;
@@ -46,6 +62,16 @@ button {
 .overflow-auto {
     height: 80vh;
     overflow-y: auto;
+}
+
+.overflow-auto::-webkit-scrollbar {
+    /* For Chrome, Safari, and Opera */
+    width: 8px;
+}
+
+.overflow-auto::-webkit-scrollbar-thumb {
+    /* For Chrome, Safari, and Opera */
+    background: #999;
 }
 
 h2,
@@ -120,6 +146,24 @@ import { ref } from 'vue';
 export default {
     components: {
         NavBar
+    },
+    data() {
+        return {
+            rating: 0,
+            showRating: false,
+        };
+    },
+    methods: {
+        rateSong() {
+            this.showRating = true;
+        },
+    },
+    watch: {
+        rating() {
+            setTimeout(() => {
+                this.showRating = false;
+            }, 1000);
+        }
     },
     setup() {
         const items = ref([

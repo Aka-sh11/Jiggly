@@ -5,7 +5,7 @@
       <div class="d-flex justify-content-between">
         <h5 class="text-start">Latest Songs</h5>
         <div class="text-end">
-          <router-link to="/user/songs" class="btn btn-secondary btn-sm" style="background: cornflowerblue">
+          <router-link to="/songs" class="btn btn-secondary btn-sm" style="background: cornflowerblue">
             Show More
           </router-link>
         </div>

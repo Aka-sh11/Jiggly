@@ -21,12 +21,18 @@
                                     style="height: 31px; padding: 0px; background-color: lightblue; margin-right:15px;" />
                             </form>
                         </li> <strong>⚕️</strong>
-                        <li class="nav-item">
+                        <li class="nav-item" v-if="user.role === 'User'">
                             <router-link to="/user/dashboard" class="nav-link">Dashboard</router-link>
-                        </li> <strong>⚕️</strong>
-                        <li class="nav-item">
-                            <router-link to="#" class="nav-link">Profile</router-link>
-                        </li> <strong>⚕️</strong>
+                        </li>
+                        <li class="nav-item" v-if="user.role === 'Creator'">
+                            <router-link to="/creator/dashboard" class="nav-link">Dashboard</router-link>
+                        </li><strong>⚕️</strong>
+                        <li class="nav-item" v-if="user.role === 'User'">
+                            <router-link to="/user/profile" class="nav-link">Profile</router-link>
+                        </li>
+                        <li class="nav-item" v-if="user.role === 'Creator'">
+                            <router-link to="/creator/profile" class="nav-link">Profile</router-link>
+                        </li><strong>⚕️</strong>
                         <li class="nav-item">
                             <router-link to="/" class="nav-link">Logout</router-link>
                         </li>
@@ -78,5 +84,13 @@ a {
 
 export default {
     name: 'NavBar',
+    data() {
+        return {
+            user: {
+                role: 'User',
+                // role: 'Creator' // This should be set based on the logged in user's role
+            }
+        }
+    }
 }
 </script>

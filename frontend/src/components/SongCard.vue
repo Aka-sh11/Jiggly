@@ -7,7 +7,7 @@
                     <source :src="`/static/audio/${song.filename}`" type="audio/mpeg">
                 </audio>
                 <br />
-                <router-link :to="`/song/song_name`" class="btn btn-info btn-sm">Read Lyrics</router-link>
+                <router-link :to="`/songs/song_name`" class="btn btn-info btn-sm">Read Lyrics</router-link>
             </div>
         </div>
     </div>

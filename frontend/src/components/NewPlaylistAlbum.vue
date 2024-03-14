@@ -1,10 +1,10 @@
 <template>
     <NavBar />
-    <form class="container-fluid" @submit.prevent="createPlaylist">
+    <form class="container-fluid" @submit.prevent="createPlaylistAlbum">
         <div class="container">
             <div class="header">
-                <h4>New Playlist</h4>
-                <input v-model="playlistName" type="text" class="form-control" placeholder="Enter Playlist Name" />
+                <h4>{{ heading }}</h4>
+                <input v-model="playlistName" type="text" class="form-control" :placeholder='placeholder' />
             </div>
             <div class="centered">
                 <input type="submit" class="btn btn-success" value="Create" />
@@ -110,27 +110,49 @@ input {
 </style>
 <script>
 import NavBar from '@/components/NavBar.vue'
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 export default {
     components: {
         NavBar
     },
     setup() {
-        const playlistName = ref('')
+        const Name = ref('')
         const router = useRouter()
+        const route = useRoute()
+        const heading = ref('')
+        const placeholder = ref('')
 
-        const createPlaylist = async () => {
-            // Call your API to create a new playlist
-            console.log(`Creating new playlist: ${playlistName.value}`)
-            // If form submission is successful, redirect to /user/dashboard
-            router.push('/user/dashboard')
+        const createPlaylistAlbum = async () => {
+            // Call your API to create a new playlist/album
+            if (route.name === 'new-playlist') {
+                console.log(`Creating new playlist: ${Name.value}`)
+            } else if (route.name === 'new-album') {
+                console.log(`Creating new album: ${Name.value}`)
+            }
+            // If form submission is successful, redirect to dashboard
+            if (route.name === 'new-playlist') {
+                router.push('/user/dashboard')
+            } else if (route.name === 'new-album') {
+                router.push('/creator/dashboard')
+            }
         }
+        onMounted(() => {
+            if (route.name === 'new-playlist') {
+                heading.value = 'Create New Playlist'
+                placeholder.value = 'Enter Playlist Name'
+            } else if (route.name === 'new-album') {
+                heading.value = 'Create New Album'
+                placeholder.value = 'Enter Album Name'
+            }
+        })
 
         return {
-            playlistName,
-            createPlaylist
+            Name,
+            createPlaylistAlbum,
+            heading,
+            placeholder
         }
     }
 }

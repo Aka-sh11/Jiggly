@@ -8,6 +8,9 @@ import NewPlaylistAlbum from '@/components/NewPlaylistAlbum.vue'
 import ViewTracks from '@/components/ViewTracks.vue'
 import EditPlaylistAlbum from '@/components/EditPlaylistAlbum.vue'
 import SongDetails from '@/components/SongDetails.vue'
+import CreatorDashboard from '@/components/CreatorDashboard.vue'
+import NewSongEdit from '@/components/NewSongEdit.vue'
+import AdminDashboard from '@/components/AdminDashboard.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -38,23 +41,23 @@ const router = createRouter({
       component: UserDashboard
     },
     {
+      path: '/songs',
+      name: 'all-songs',
+      component: ViewTracks
+    },
+    {
+      path: '/songs/song_name',
+      name: 'song-details',
+      component: SongDetails
+    },
+       {
       path: '/user/playlist/create',
       name: 'new-playlist',
       component: NewPlaylistAlbum
     },
     {
-      path: '/user/songs',
-      name: 'all-songs',
-      component: ViewTracks
-    },
-    {
       path: '/user/playlist/playlist_name',
       name: 'playlist',
-      component: ViewTracks
-    },
-    {
-      path: '/album/album_name',
-      name: 'album',
       component: ViewTracks
     },
     {
@@ -63,9 +66,39 @@ const router = createRouter({
       component: EditPlaylistAlbum
     },
     {
-      path: '/song/song_name',
-      name: 'song-details',
-      component: SongDetails
+      path: '/album/album_name',
+      name: 'album',
+      component: ViewTracks
+    },
+    {
+      path: '/creator/dashboard',
+      name: 'creator-dashboard',
+      component: CreatorDashboard
+    },
+    {
+      path: '/creator/songs/upload',
+      name: 'upload-song',
+      component: NewSongEdit
+    },
+    {
+      path: '/creator/songs/song_name/edit',
+      name: 'edit-song',
+      component: NewSongEdit
+    },
+    {
+      path: '/creator/album/create',
+      name: 'new-album',
+      component: NewPlaylistAlbum
+    },
+    {
+      path: '/creator/album/album_name/edit',
+      name: 'edit-album',
+      component: EditPlaylistAlbum
+    },
+    {
+      path: '/admin/dashboard',
+      name: 'admin-dashboard',
+      component: AdminDashboard
     }
   ]
 })
