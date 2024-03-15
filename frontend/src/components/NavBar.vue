@@ -14,13 +14,21 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav">
                         <li class="nav-item">
-                            <form class="input-group" @submit.prevent="search">
+                            <div class="input-group">
                                 <input v-model="query" type="search" name="search" class="form-control"
                                     style="width: 120px; margin:0px;height:31px;" placeholder="Search" />
-                                <input type="submit" class="btn btn-info btn-sm" value="🔍"
-                                    style="height: 31px; padding: 0px; background-color: lightblue; margin-right:15px;" />
-                            </form>
+                                <button class="btn btn-info btn-sm" @click="search"
+                                    style="height: 31px; padding: 0px; background-color: lightblue; margin-right:15px;">🔍</button>
+                                <div v-if="filteredResults.length" class="dropdown">
+                                    <div v-for="result in filteredResults" :key="result.id" class="dropdown-item">
+                                        <router-link :to="`/songs/${result.name}`">{{ result.name }}</router-link>
+                                    </div>
+                                </div>
+                            </div>
                         </li> <strong>⚕️</strong>
+                        <li class="nav-item" v-if="user.role === 'Admin'">
+                            <router-link to="/admin/dashboard" class="nav-link">Dashboard</router-link>
+                        </li>
                         <li class="nav-item" v-if="user.role === 'User'">
                             <router-link to="/user/dashboard" class="nav-link">Dashboard</router-link>
                         </li>
@@ -32,7 +40,7 @@
                         </li>
                         <li class="nav-item" v-if="user.role === 'Creator'">
                             <router-link to="/creator/profile" class="nav-link">Profile</router-link>
-                        </li><strong>⚕️</strong>
+                        </li><strong v-if="user.role !== 'Admin'">⚕️</strong>
                         <li class="nav-item">
                             <router-link to="/" class="nav-link">Logout</router-link>
                         </li>
@@ -67,7 +75,7 @@ strong {
 
 a {
     color: cornsilk;
-    height: 40px;
+    /* height: 40px; */
     align-items: center;
 }
 
@@ -77,20 +85,45 @@ a {
 </style>
 
 <script>
-// import { ref } from 'vue';
-// import axios from 'axios';
-// import { useRouter } from 'vue-router';
-// import { useStore } from 'pinia';
+import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 
 export default {
     name: 'NavBar',
     data() {
         return {
             user: {
-                role: 'User',
+                role: 'Admin',
+                // role: 'User',
                 // role: 'Creator' // This should be set based on the logged in user's role
             }
         }
+    },
+    setup() {
+        let query = ref('');
+        let results = ref([
+            // Your results here
+        ]);
+
+        let router = useRouter();
+
+        let search = () => {
+            // Your search function here
+        };
+
+        let filteredResults = computed(() => {
+            if (!query.value) return [];
+            return results.value.filter(result => result.name.includes(query.value));
+        });
+
+        // Return these variables so they can be used in your component
+        return {
+            query,
+            results,
+            router,
+            search,
+            filteredResults
+        };
     }
 }
 </script>

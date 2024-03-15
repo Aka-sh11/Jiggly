@@ -11,6 +11,9 @@ import SongDetails from '@/components/SongDetails.vue'
 import CreatorDashboard from '@/components/CreatorDashboard.vue'
 import NewSongEdit from '@/components/NewSongEdit.vue'
 import AdminDashboard from '@/components/AdminDashboard.vue'
+import AdminTracks from '@/components/AdminTracks.vue'
+import AdminAlbums from '@/components/AdminAlbums.vue'
+import AdminCreators from '@/components/AdminCreators.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -99,6 +102,21 @@ const router = createRouter({
       path: '/admin/dashboard',
       name: 'admin-dashboard',
       component: AdminDashboard
+    },
+    {
+      path: '/admin/tracks',
+      name: 'admin-tracks',
+      component: AdminTracks
+    },
+    {
+      path: '/admin/albums',
+      name: 'admin-albums',
+      component: AdminAlbums
+    },
+    {
+      path: '/admin/creators',
+      name: 'admin-creators',
+      component: AdminCreators
     }
   ]
 })

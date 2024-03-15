@@ -4,7 +4,7 @@
         <div class="row">
             <div class="box" style="display: unset">
                 <div class="heading">
-                    <h3 style="text-align: left; -webkit-text-fill-color: black;">Statisitics</h3>
+                    <h3 style="text-align: left; -webkit-text-fill-color: black;">Summary</h3>
                 </div>
                 <div class="row" style="padding-top: 8px">
                     <div class="col">
@@ -135,11 +135,13 @@ h5 {
 .overflow-auto::-webkit-scrollbar {
     /* For Chrome, Safari, and Opera */
     width: 8px;
+    border-radius: 80px;
 }
 
 .overflow-auto::-webkit-scrollbar-thumb {
     /* For Chrome, Safari, and Opera */
     background: #999;
+    border-radius: 80px;
 }
 
 .nav {
