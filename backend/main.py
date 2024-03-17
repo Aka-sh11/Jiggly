@@ -4,9 +4,12 @@ from application.models import db, Users
 from config import DevelopmentConfig
 from application.apis import api
 from flask_jwt_extended import JWTManager
+from flask_cors import CORS
+
 
 def create_app():
     app = Flask(__name__)
+    CORS(app, supports_credentials=True)
     app.config.from_object(DevelopmentConfig)
     db.init_app(app)
     api.init_app(app)
@@ -32,6 +35,7 @@ def create_app():
     with app.app_context():
         import application.routes
     return app
+
 
 app = create_app()
 

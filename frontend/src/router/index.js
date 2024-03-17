@@ -1,19 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomePage from '@/components/HomePage.vue'
-import UserCreatorLogin from '@/components/UserCreatorLogin.vue'
-import Registration from '@/components/Registration.vue'
-import AdminLogin from '@/components/AdminLogin.vue'
-import UserDashboard from '@/components/UserDashboard.vue'
-import NewPlaylistAlbum from '@/components/NewPlaylistAlbum.vue'
-import ViewTracks from '@/components/ViewTracks.vue'
-import EditPlaylistAlbum from '@/components/EditPlaylistAlbum.vue'
-import SongDetails from '@/components/SongDetails.vue'
-import CreatorDashboard from '@/components/CreatorDashboard.vue'
-import NewSongEdit from '@/components/NewSongEdit.vue'
-import AdminDashboard from '@/components/AdminDashboard.vue'
-import AdminTracks from '@/components/AdminTracks.vue'
-import AdminAlbums from '@/components/AdminAlbums.vue'
-import AdminCreators from '@/components/AdminCreators.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -26,97 +12,97 @@ const router = createRouter({
     {
       path: '/login',
       name: 'user-creator-login',
-      component: UserCreatorLogin
+      component: () => import('@/components/UserCreatorLogin.vue')
     },
     {
       path: '/register',
       name: 'user-creator-register',
-      component: Registration
+      component: () => import('@/components/RegistrationPage.vue')
     },
     {
       path: '/login/admin',
       name: 'admin-login',
-      component: AdminLogin
+      component: () => import('@/components/AdminLogin.vue')
     },
     {
       path: '/user/dashboard',
       name: 'user-dashboard',
-      component: UserDashboard
+      component: () => import('@/components/UserDashboard.vue')
     },
     {
       path: '/songs',
       name: 'all-songs',
-      component: ViewTracks
+      component: () => import('@/components/ViewTracks.vue')
     },
     {
-      path: '/songs/song_name',
+      path: '/song/:id',
       name: 'song-details',
-      component: SongDetails
+      component: () => import('@/components/SongDetails.vue')
     },
        {
       path: '/user/playlist/create',
       name: 'new-playlist',
-      component: NewPlaylistAlbum
+      component: () => import('@/components/NewPlaylistAlbum.vue')
     },
     {
       path: '/user/playlist/playlist_name',
       name: 'playlist',
-      component: ViewTracks
+      component: () => import('@/components/ViewTracks.vue')
     },
     {
       path: '/user/playlist/playlist.name/edit',
       name: 'edit-playlist',
-      component: EditPlaylistAlbum
+      component: () => import('@/components/EditPlaylistAlbum.vue')
     },
     {
       path: '/album/album_name',
       name: 'album',
-      component: ViewTracks
+      component: () => import('@/components/ViewTracks.vue')
     },
     {
       path: '/creator/dashboard',
       name: 'creator-dashboard',
-      component: CreatorDashboard
+      component: () => import('@/components/CreatorDashboard.vue')
     },
     {
-      path: '/creator/songs/upload',
+      path: '/creator/song/upload',
       name: 'upload-song',
-      component: NewSongEdit
+      component: () => import('@/components/NewSongEdit.vue')
     },
     {
       path: '/creator/songs/song_name/edit',
       name: 'edit-song',
-      component: NewSongEdit
+      component: () => import('@/components/NewSongEdit.vue')
     },
     {
       path: '/creator/album/create',
       name: 'new-album',
-      component: NewPlaylistAlbum
+      component: () => import('@/components/NewPlaylistAlbum.vue')
     },
     {
       path: '/creator/album/album_name/edit',
       name: 'edit-album',
-      component: EditPlaylistAlbum
+      component: () => import('@/components/EditPlaylistAlbum.vue')
     },
     {
       path: '/admin/dashboard',
       name: 'admin-dashboard',
-      component: AdminDashboard
+      component: () => import('@/components/AdminDashboard.vue')
     },
     {
       path: '/admin/tracks',
       name: 'admin-tracks',
-      component: AdminTracks
+      component: () => import('@/components/AdminTracks.vue')
     },
     {
       path: '/admin/albums',
       name: 'admin-albums',
-      component: AdminAlbums
+      component: () => import('@/components/AdminAlbums.vue')
     },
     {
       path: '/admin/creators',
       name: 'admin-creators',
-      component: AdminCreators
+      component: () => import('@/components/AdminCreators.vue')
     }
   ]
 })

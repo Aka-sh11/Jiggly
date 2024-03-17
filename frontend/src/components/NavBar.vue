@@ -93,9 +93,9 @@ export default {
     data() {
         return {
             user: {
-                role: 'Admin',
+                // role: 'Admin',
                 // role: 'User',
-                // role: 'Creator' // This should be set based on the logged in user's role
+                role: 'Creator' // This should be set based on the logged in user's role
             }
         }
     },

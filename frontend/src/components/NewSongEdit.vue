@@ -92,6 +92,7 @@ form {
 import NavBar from './NavBar.vue'
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import axios from 'axios'
 
 export default {
     components: {
@@ -145,13 +146,37 @@ export default {
                 song.value.file = event.target.files[0]
             },
             async uploadSong() {
-                // Handle the form submission here
-                // You can use the `fetch` API or a library like `axios` to send the form data to your server
-                // You should wait for the server response before redirecting
-                // Here's a dummy promise to simulate waiting for the server response
-                await new Promise(resolve => setTimeout(resolve, 500))
-                router.push('/creator/dashboard')
+                const formData = new FormData()
+                Object.keys(song.value).forEach(key => {
+                    formData.append(key, song.value[key])
+                })
+
+                // Append the .mp3 filename to the form data
+                formData.append('filename', song.value.file.name)
+
+                // Append the dummy userId to the form data
+                const dummyUserId = 6; // replace with your dummy user ID
+                formData.append('user_id', dummyUserId)
+
+                try {
+                    const response = await axios({
+                        method: 'post',
+                        url: 'http://127.0.0.1:5000/api/song',
+                        data: formData,
+                        headers: { 'Content-Type': 'application/json' }
+                    })
+
+                    if (response.status === 200) {
+                        router.push('/creator/dashboard')
+                    } else {
+                        // Handle the error
+                        alert('There was an error uploading the song')
+                    }
+                } catch (error) {
+                    alert(error.response.data)
+                }
             }
+
         }
     },
 }

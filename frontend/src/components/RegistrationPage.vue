@@ -21,14 +21,14 @@
                 <label for="role">Role</label><br>
                 <div class="role-container">
                   <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="role" id="creator" value="creator" v-model="role"
+                    <input class="form-check-input" type="radio" name="role" id="Creator" value="Creator" v-model="role"
                       required>
-                    <label class="form-check-label" for="creator">Creator</label>
+                    <label class="form-check-label" for="Creator">Creator</label>
                   </div>
                   <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="role" id="user" value="user" v-model="role"
+                    <input class="form-check-input" type="radio" name="role" id="User" value="User" v-model="role"
                       required>
-                    <label class="form-check-label" for="user">User</label>
+                    <label class="form-check-label" for="User">User</label>
                   </div>
                 </div>
               </div>
@@ -64,7 +64,8 @@ img {
 }
 
 .logo {
-  padding: 3%;
+  padding: 2.5%;
+  padding-top: 1.5%;
   display: flex;
   justify-content: center;
 }
@@ -83,9 +84,11 @@ img {
 <script>
 import { ref } from 'vue'
 import axios from 'axios'
+import { useRouter } from 'vue-router'
 
 export default {
   setup() {
+    const router = useRouter()
     const username = ref('')
     const email = ref('')
     const password = ref('')
@@ -95,24 +98,24 @@ export default {
     const register = async () => {
       // Check if username is between 4 to 10 characters long
       if (username.value.length < 4 || username.value.length > 10) {
-        console.log('Username must be between 4 to 10 characters long')
+        alert('Username must be between 4 to 10 characters long')
         return
       }
 
       // Check if password is between 8 to 16 characters long
       if (password.value.length < 8 || password.value.length > 16) {
-        console.log('Password must be between 8 to 16 characters long')
+        alert('Password must be between 8 to 16 characters long')
         return
       }
       // Check if password and confirm password fields match
       if (password.value !== confirmPassword.value) {
-        console.log('Passwords do not match')
+        alert('Passwords do not match')
         return
       }
 
       // If they match, send a request to the server
       try {
-        const response = await axios.post('/api/register', {
+        const response = await axios.post('http://127.0.0.1:5000/api/user', {
           username: username.value,
           email: email.value,
           password: password.value,
@@ -120,9 +123,9 @@ export default {
         })
         console.log(response.data)
         // Navigate to login page
-        this.$router.push('/login')
+        router.push('/login')
       } catch (error) {
-        console.log(error)
+        alert(error.response.data)
       }
     }
 

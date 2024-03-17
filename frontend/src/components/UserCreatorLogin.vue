@@ -71,7 +71,7 @@ export default {
 
     const loginUser = async () => {
       try {
-        const response = await axios.post('/api/login', {
+        const response = await axios.post('http://127.0.0.1:5000/login', {
           username: username.value,
           password: password.value
         })
@@ -81,9 +81,9 @@ export default {
           localStorage.setItem('accessToken', response.data.access_token)
 
           // Check the user's role and redirect them to the appropriate dashboard
-          if (response.data.user.role === 'user') {
+          if (response.data.user.role_id === 2) {
             window.location.href = '/user/dashboard'
-          } else if (response.data.user.role === 'creator') {
+          } else if (response.data.user.role_id === 3) {
             window.location.href = '/creator/dashboard'
           }
         } else {
@@ -92,7 +92,7 @@ export default {
         }
       } catch (error) {
         // Handle error, e.g. show an error message
-        console.error('Login failed', error)
+        alert('Login Failed, ' + error.response.data)
       }
     }
     return {

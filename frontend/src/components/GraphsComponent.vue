@@ -1,3 +1,4 @@
+<!-- migrate to vue-chartjs from chartjs -->
 <template>
     <div>
         <canvas ref="chart"></canvas>

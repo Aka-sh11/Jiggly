@@ -62,3 +62,15 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+::-webkit-scrollbar {
+  /* For Chrome, Safari, and Opera */
+  width: 10px;
+  border-radius: 100px;
+}
+
+::-webkit-scrollbar-thumb {
+  /* For Chrome, Safari, and Opera */
+  background: -webkit-linear-gradient(109.6deg, rgb(136, 234, 234) 11.2%, rgb(243, 156, 207) 92.5%);
+  border-radius: 100px;
+}

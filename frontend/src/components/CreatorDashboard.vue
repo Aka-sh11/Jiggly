@@ -10,7 +10,7 @@
                     <div class="col">
                         <em>Total Songs Uploaded</em> <br /><br />
                         <em>
-                            <p>{{ current_user.songs.length }}</p>
+                            <p>{{ songs.length }}</p>
                         </em>
                     </div>
                     <div class="col">
@@ -21,7 +21,7 @@
                     </div>
                     <div class="col">
                         <em>Total Albums</em><br /><br />
-                        <p>{{ current_user.albums.length }}</p>
+                        <p>{{ albums.length }}</p>
                     </div>
                 </div>
             </div>
@@ -32,20 +32,20 @@
                     <h3 style="text-align: left; -webkit-text-fill-color: black;">Songs</h3>
                     <ul class="nav">
                         <li class="nav-item">
-                            <router-link to="/creator/songs/upload" class="btn btn-primary btn-sm"
+                            <router-link to="/creator/song/upload" class="btn btn-primary btn-sm"
                                 style="background: steelblue">Upload Song</router-link>
                         </li>
                     </ul>
                 </div>
                 <div class="row">
                     <div class="overflow-auto">
-                        <div v-for="song in current_user.songs" :key="song.id" class="box"
+                        <div v-for="song in songs" :key="song.id" class="box"
                             style="margin-top: 15px; background-color: gainsboro; flex-direction: column;">
                             <div class="header">
-                                <h5>song.title</h5>
+                                <h5>{{ song.title }}</h5>
                                 <ul class="nav">
                                     <li class="nav-item">
-                                        <router-link :to="'/songs/song_name'" class="btn btn-info btn-sm">View
+                                        <router-link :to="'/song/' + song.id" class="btn btn-info btn-sm">View
                                             Lyrics</router-link>
                                     </li>
                                     <li class="nav-item">
@@ -74,7 +74,7 @@
                 </div>
                 <div class="row">
                     <div class="overflow-auto">
-                        <div v-for="album in current_user.albums" :key="album.id" class="box"
+                        <div v-for="album in albums" :key="album.id" class="box"
                             style="margin-top: 15px; background-color: gainsboro; flex-direction: column;">
                             <div class="header">
                                 <h5>album.name</h5>
@@ -198,6 +198,7 @@ h5 {
 </style>
 
 <script>
+import axios from 'axios';
 import NavBar from './NavBar.vue'
 
 export default {
@@ -207,13 +208,24 @@ export default {
     },
     data() {
         return {
-            current_user: {
-                songs: [1, 2, 3, 4], // This should be set based on the logged in user's songs
-                albums: [1, 2, 3, 4], // This should be set based on the logged in user's albums
-            },
+            songs: [], // This will be set based on all songs
+            albums: [1, 2, 3, 4], // This should be set based on the logged in user's albums
             average: 0, // This should be set based on the average rating
         };
     },
+    created() {
+        this.fetchSongs();
+    },
+    methods: {
+        fetchSongs() {
+            axios.get('http://127.0.0.1:5000/api/song')
+                .then(response => {
+                    this.songs = response.data;
+                })
+                .catch(error => {
+                    alert(error);
+                });
+        }
+    }
 }
-
 </script>

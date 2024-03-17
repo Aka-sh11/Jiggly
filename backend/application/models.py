@@ -16,7 +16,7 @@ class Users(db.Model):
     playlists = db.relationship('Playlist', backref='user', lazy=True)
     albums = db.relationship('Album', backref='user', lazy=True)
     ratings = db.relationship('Rating', backref='user', lazy=True)
-    roles = db.relationship('Role', backref='user', lazy=True)
+    # roles = db.relationship('Role', backref='user', lazy=True)
     
     def to_dict(self):
         return {

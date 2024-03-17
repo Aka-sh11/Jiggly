@@ -15,21 +15,22 @@ def login():
     username, password = data.get("username"), data.get("password")
     user = Users.query.filter_by(username=username).first()
     if not user:
-        return make_response('user not found', 404)
+        return make_response('User Not Found', 404)
     if not check_password_hash(user.password, password):
-        return make_response('invalid password', 400)
+        return make_response('Invalid Password', 400)
 
     access_token = create_access_token(identity=user)
     refresh_token = create_refresh_token(identity=user)
-    if not access_token or  not refresh_token:
-        return make_response("error generating Token", 500)
+    if not access_token or not refresh_token:
+        return make_response("Error Generating Token", 500)
     else:
         return jsonify(user=user.to_dict(), access_token=access_token)
-    
-@app.route('/logout',methods=['POST'])
+
+
+@app.route('/logout', methods=['POST'])
 @jwt_required()
 def logout():
-    response = jsonify({"message":"Logout Successful"})
+    response = jsonify({"message": "Logout Successful"})
     unset_jwt_cookies(response)
     return response, 200
 

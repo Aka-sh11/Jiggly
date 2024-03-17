@@ -1,10 +1,10 @@
 <template>
     <NavBar />
-    <div class="box-m">
+    <div class="box-m" v-if="song">
         <div class="overflow-auto">
             <div class="box">
                 <div class="header">
-                    <h2>song.title</h2>
+                    <h2>{{ song.title }}</h2>
                     <nav>
                         <button class="btn btn-info btn-sm" @click="rateSong"
                             style="background-color: cadetblue;">Rate</button>
@@ -15,17 +15,15 @@
                         </div>
                     </nav>
                 </div>
-                <h6>song.singer | song.date[: 4]</h6>
+                <h6>{{ song.singer }} <b>|</b> {{ song.date.substring(0, 4) }}</h6>
                 <audio controls>
-                    <source :src="`/static/audio/song.filename`" type="audio/mpeg" />
+                    <source :src="song.filename" type="audio/mpeg" />
                 </audio>
                 <div class="box" style="background-color: gainsboro;">
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Possimus voluptatibus expedita eligendi
-                        voluptas, cum aliquid hic voluptatem asperiores. Ad aperiam doloribus nulla repudiandae qui
-                        alias nemo minus natus eveniet delectus.</p>
+                    <p>{{ song.lyrics }}</p>
                 </div>
                 <br />
-                <div class="emoji" v-for="(item, index) in items" :key="index">
+                <div class="emoji" v-for="( item, index ) in  items " :key="index">
                     <button @click="animate(index)" :class="{ pop: item.pop, float: item.float }"
                         style="font-size: 1.2rem;">
                         {{ item.icon }}
@@ -37,6 +35,10 @@
 </template>
 
 <style scoped>
+b {
+    color: chocolate;
+}
+
 nav {
     display: flex;
     justify-content: flex-end;
@@ -142,6 +144,7 @@ button.float {
 <script>
 import NavBar from '@/components/NavBar.vue'
 import { ref } from 'vue';
+import axios from 'axios';
 
 export default {
     components: {
@@ -149,15 +152,29 @@ export default {
     },
     data() {
         return {
+            song: null, // Add this line
             rating: 0,
-            showRating: false,
+            showRating: false
         };
     },
     methods: {
         rateSong() {
             this.showRating = true;
         },
+        getSongDetails(song_id) {
+            axios.get(`http://127.0.0.1:5000/api/song/${song_id}`)
+                .then(response => {
+                    this.song = response.data;
+                })
+                .catch(error => {
+                    alert(error);
+                });
+        },
     },
+    created() {
+        this.getSongDetails(this.$route.params.id);
+    },
+
     watch: {
         rating() {
             setTimeout(() => {
@@ -189,5 +206,4 @@ export default {
         };
     },
 };
-
-</script>```
+</script>
