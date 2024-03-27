@@ -1,4 +1,4 @@
-<template>
+s<template>
     <NavBar />
     <div class="container">
         <div class="row">
@@ -49,12 +49,11 @@
                                             Lyrics</router-link>
                                     </li>
                                     <li class="nav-item">
-                                        <router-link :to="'/creator/songs/song_name/edit'"
+                                        <router-link :to="'/creator/song/' + song.id + '/edit'"
                                             class="btn btn-info btn-sm">Edit</router-link>
                                     </li>
                                     <li class="nav-item">
-                                        <router-link :to="'/songs/song_name/delete' + song.id"
-                                            class="btn btn-info btn-sm">Delete</router-link>
+                                        <button @click="deleteSong(song.id)" class="btn btn-info btn-sm">Delete</button>
                                     </li>
                                 </ul>
                             </div>
@@ -77,7 +76,7 @@
                         <div v-for="album in albums" :key="album.id" class="box"
                             style="margin-top: 15px; background-color: gainsboro; flex-direction: column;">
                             <div class="header">
-                                <h5>album.name</h5>
+                                <h5>{{ album.name}}</h5>
                                 <ul class="nav">
                                     <li class="nav-item">
                                         <router-link :to="'/album/album_name'" class="btn btn-info btn-sm">View
@@ -209,18 +208,37 @@ export default {
     data() {
         return {
             songs: [], // This will be set based on all songs
-            albums: [1, 2, 3, 4], // This should be set based on the logged in user's albums
+            albums: [], // This should be set based on the logged in user's albums
             average: 0, // This should be set based on the average rating
         };
     },
     created() {
         this.fetchSongs();
+        this.fetchAlbums();
     },
     methods: {
         fetchSongs() {
             axios.get('http://127.0.0.1:5000/api/song')
                 .then(response => {
                     this.songs = response.data;
+                })
+                .catch(error => {
+                    alert(error);
+                });
+        },
+        fetchAlbums() {
+            axios.get('http://127.0.0.1:5000/api/album')
+                .then(response => {
+                    this.albums = response.data;
+                })
+                .catch(error => {
+                    alert(error);
+                });
+        },
+        deleteSong(id) {
+            axios.delete(`http://127.0.0.1:5000/api/song/${id}`)
+                .then(() => {
+                    this.fetchSongs(); // Refresh the list after deletion
                 })
                 .catch(error => {
                     alert(error);

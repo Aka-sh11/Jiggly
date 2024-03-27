@@ -70,14 +70,14 @@ class Album(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False, unique=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    songs_in_album = db.relationship('Songs_in_Album', backref='album', lazy=True)
+    songs_in_album = db.relationship('Songs_in_Album', backref='albums', lazy=True)
     
 class Songs_in_Album(db.Model):
     __tablename__ = 'songs_album'
     id = db.Column(db.Integer, primary_key=True)
     album_id = db.Column(db.Integer, db.ForeignKey('albums.id'), nullable=False)
     song_id = db.Column(db.Integer, db.ForeignKey('songs.id'), nullable=False)
-    song = db.relationship('Songs', backref='songs_in_album', lazy=True)
+    song = db.relationship('Songs', backref='songs_album', lazy=True)
     
     
 class Rating(db.Model):

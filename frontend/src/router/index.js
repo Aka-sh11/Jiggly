@@ -70,7 +70,7 @@ const router = createRouter({
       component: () => import('@/components/NewSongEdit.vue')
     },
     {
-      path: '/creator/songs/song_name/edit',
+      path: '/creator/song/:id/edit',
       name: 'edit-song',
       component: () => import('@/components/NewSongEdit.vue')
     },

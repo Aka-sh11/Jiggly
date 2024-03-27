@@ -1,37 +1,37 @@
 <template>
     <NavBar />
-    <div class="box-m" v-if="song">
-        <div class="overflow-auto">
-            <div class="box">
-                <div class="header">
-                    <h2>{{ song.title }}</h2>
-                    <nav>
-                        <button class="btn btn-info btn-sm" @click="rateSong"
-                            style="background-color: cadetblue;">Rate</button>
+    <div class="box-m">
+        <!-- <div class="overflow-auto"> -->
+        <div class="box">
+            <div class="header">
+                <h2 v-if="song">{{ song.title }}</h2>
+                <nav>
+                    <button class="btn btn-info btn-sm" @click="rateSong"
+                        style="background-color: cadetblue;">Rate</button>
 
-                        <div v-if="showRating">
-                            <input type="range" id="rating" v-model.number="rating" min="0" max="5">
-                            <span>{{ rating }}</span>
-                        </div>
-                    </nav>
-                </div>
-                <h6>{{ song.singer }} <b>|</b> {{ song.date.substring(0, 4) }}</h6>
-                <audio controls>
-                    <source :src="song.filename" type="audio/mpeg" />
-                </audio>
-                <div class="box" style="background-color: gainsboro;">
-                    <p>{{ song.lyrics }}</p>
-                </div>
-                <br />
-                <div class="emoji" v-for="( item, index ) in  items " :key="index">
-                    <button @click="animate(index)" :class="{ pop: item.pop, float: item.float }"
-                        style="font-size: 1.2rem;">
-                        {{ item.icon }}
-                    </button>
-                </div>
+                    <div v-if="showRating">
+                        <input type="range" id="rating" v-model.number="rating" min="0" max="5">
+                        <span>{{ rating }}</span>
+                    </div>
+                </nav>
+            </div>
+            <h6 v-if="song">{{ song.singer }} <b>|</b> {{ song.date.substring(0, 4) }}</h6>
+            <audio controls v-if="song">
+                <source :src="'/audio/' + song.filename" type="audio/mp3" />
+            </audio>
+            <div class="box overflow-auto" style="background-color: gainsboro;">
+                <p v-if="song">{{ song.lyrics }}</p>
+            </div>
+            <br />
+            <div class="emoji" v-for="( Icon, index ) in  reactionIcons " :key="index">
+                <button @click="triggerAnimation(index)" :class="{ pop: Icon.pop, float: Icon.float }"
+                    style="font-size: 1.2rem;">
+                    {{ Icon.icon }}
+                </button>
             </div>
         </div>
     </div>
+    <!-- </div> -->
 </template>
 
 <style scoped>
@@ -62,18 +62,20 @@ button {
 }
 
 .overflow-auto {
-    height: 80vh;
+    height: 38vh;
     overflow-y: auto;
 }
 
 .overflow-auto::-webkit-scrollbar {
     /* For Chrome, Safari, and Opera */
     width: 8px;
+    border-radius: 100px;
 }
 
 .overflow-auto::-webkit-scrollbar-thumb {
     /* For Chrome, Safari, and Opera */
     background: #999;
+    border-radius: 100px;
 }
 
 h2,
@@ -152,7 +154,7 @@ export default {
     },
     data() {
         return {
-            song: null, // Add this line
+            song: null,
             rating: 0,
             showRating: false
         };
@@ -161,7 +163,7 @@ export default {
         rateSong() {
             this.showRating = true;
         },
-        getSongDetails(song_id) {
+        fetchSongDetails(song_id) {
             axios.get(`http://127.0.0.1:5000/api/song/${song_id}`)
                 .then(response => {
                     this.song = response.data;
@@ -171,10 +173,9 @@ export default {
                 });
         },
     },
-    created() {
-        this.getSongDetails(this.$route.params.id);
+    mounted() {
+        this.fetchSongDetails(this.$route.params.id);
     },
-
     watch: {
         rating() {
             setTimeout(() => {
@@ -183,26 +184,25 @@ export default {
         }
     },
     setup() {
-        const items = ref([
-            { icon: '👍', pop: false, float: false },
+        const reactionIcons = ref([
             { icon: '❤️', pop: false, float: false },
-            { icon: '🔥', pop: false, floa: false },
             { icon: '👎', pop: false, float: false },
-            { icon: '😍', pop: false, float: false },
+            { icon: '🔥', pop: false, floa: false },
+
         ]);
 
-        const animate = (index) => {
-            items.value[index].pop = true;
-            items.value[index].float = true;
+        const triggerAnimation = (index) => {
+            reactionIcons.value[index].pop = true;
+            reactionIcons.value[index].float = true;
             setTimeout(() => {
-                items.value[index].pop = false;
-                items.value[index].float = false;
+                reactionIcons.value[index].pop = false;
+                reactionIcons.value[index].float = false;
             }, 500); // Reset after 500ms
         };
 
         return {
-            items,
-            animate,
+            reactionIcons,
+            triggerAnimation,
         };
     },
 };

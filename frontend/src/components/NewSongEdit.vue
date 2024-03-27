@@ -16,8 +16,8 @@
                             <label for="date" class="form-label">Release Date</label>
                             <input class="form-control" type="date" :value="song.date"
                                 @input="updateSong('date', $event.target.value)" placeholder="Date" required />
-                            <label for="file" class="form-label">File (.mp3 format)</label>
-                            <input type="file" class="form-control" @change="handleFileUpload" accept=".mp3" required />
+                            <label for="filename" class="form-label">File (.mp3 format)</label>
+                            <input type="file" class="form-control" @change="onFileChange" accept=".mp3" required />
                         </div>
                         <div class="col">
                             <label for="singer" class="form-label">Singer</label>
@@ -103,16 +103,18 @@ export default {
         const router = useRouter()
         const heading = ref('')
         const buttonText = ref('')
+        const songId = route.params.id
         const song = ref({
             title: '',
             date: '',
-            file: null,
+            filename: null,
             singer: '',
             genre: '',
             lyrics: '',
         })
+        const originalSong = ref(null)
 
-        onMounted(() => {
+        onMounted(async () => {
             if (route.name === 'upload-song') {
                 heading.value = 'Upload Song'
                 buttonText.value = 'Add'
@@ -120,15 +122,16 @@ export default {
                 heading.value = 'Edit Song'
                 buttonText.value = 'Edit'
                 // Fetch the song data from your server and update `song.value`
-                // The song data will be used as placeholder values in the form
-                // Use dummy data for testing
-                song.value = {
-                    title: 'Test Song',
-                    date: '2024-03-14',
-                    file: null,
-                    singer: 'Test Singer',
-                    genre: 'Test Genre',
-                    lyrics: 'Test Lyrics',
+                try {
+                    const response = await axios.get(`http://127.0.0.1:5000/api/song/${songId}`);
+                    if (response.status === 200) {
+                        song.value = response.data; // update song data with response
+                        originalSong.value = { ...response.data }
+                    } else {
+                        alert('There was an error fetching the song details');
+                    }
+                } catch (error) {
+                    alert(error.response.data);
                 }
             }
         })
@@ -142,8 +145,8 @@ export default {
             song,
             updateSong,
             buttonText,
-            handleFileUpload(event) {
-                song.value.file = event.target.files[0]
+            onFileChange(event) {
+                song.value.filename = event.target.files[0].name
             },
             async uploadSong() {
                 const formData = new FormData()
@@ -151,20 +154,36 @@ export default {
                     formData.append(key, song.value[key])
                 })
 
-                // Append the .mp3 filename to the form data
-                formData.append('filename', song.value.file.name)
-
                 // Append the dummy userId to the form data
                 const dummyUserId = 6; // replace with your dummy user ID
                 formData.append('user_id', dummyUserId)
 
                 try {
-                    const response = await axios({
-                        method: 'post',
-                        url: 'http://127.0.0.1:5000/api/song',
-                        data: formData,
-                        headers: { 'Content-Type': 'application/json' }
-                    })
+                    let response;
+                    if (route.name === 'edit-song') {
+
+                        // Check if any changes have been made
+                        if (JSON.stringify(song.value) !== JSON.stringify(originalSong.value)) {
+                            // If it's an edit and changes have been made, make a PUT request
+                            response = await axios({
+                                method: 'put',
+                                url: `http://127.0.0.1:5000/api/song/${songId}`,
+                                data: formData,
+                                headers: { 'Content-Type': 'application/json' }
+                            })
+                        } else {
+                            alert('Please make some changes before submitting');
+                            return;
+                        }
+                    } else {
+                        // Otherwise, make a POST request
+                        response = await axios({
+                            method: 'post',
+                            url: 'http://127.0.0.1:5000/api/song',
+                            data: formData,
+                            headers: { 'Content-Type': 'application/json' }
+                        })
+                    }
 
                     if (response.status === 200) {
                         router.push('/creator/dashboard')
@@ -176,6 +195,8 @@ export default {
                     alert(error.response.data)
                 }
             }
+
+
 
         }
     },

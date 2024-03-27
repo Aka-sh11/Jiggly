@@ -161,7 +161,7 @@ class UserAPI(Resource):
         db.session.commit()
         return new_user, 201
 
-    @jwt_required()
+    # @jwt_required()
     @marshal_with(user_fields)
     def put(self, user_id):
         data = user_parser.parse_args()
@@ -218,8 +218,6 @@ class SongAPI(Resource):
         if existing_song:
             raise AlreadyExists(
                 "A song with this title and singer already exists")
-        # # Store the location of the file relative to the ../static/audio/ folder
-        # file_location = os.path.join('../static/audio/', data['filename'])
         new_song = Songs(title=data['title'], singer=data['singer'], date=data['date'],
                          lyrics=data['lyrics'], genre=data['genre'],
                          filename=data['filename'], user_id=data['user_id'])
@@ -227,7 +225,7 @@ class SongAPI(Resource):
         db.session.commit()
         return new_song, 200
 
-    @jwt_required()
+    # @jwt_required()
     @marshal_with(song_fields)
     def put(self, song_id):
         data = song_parser.parse_args()
@@ -252,19 +250,22 @@ class SongAPI(Resource):
         db.session.commit()
         return song
 
-    @jwt_required()
-    @access(["Creator", "Admin"])
+    # @jwt_required()
+    # @access(["Creator", "Admin"])
     def delete(self, song_id):
         song = Songs.query.get(song_id)
         if not song:
             raise NotFound("Song not found")
+        Songs_in_Album.query.filter_by(song_id=song_id).delete()  # 1st delter it from Album
+        Songs_in_Playlist.query.filter_by(song_id=song_id).delete()  # then delete it from Playlist
+        Rating.query.filter_by(song_id=song_id).delete()  # then delete all its reatings
         db.session.delete(song)
         db.session.commit()
-        return '', 204
+        return '', 200
 
 
 class PlaylistAPI(Resource):
-    @jwt_required()
+    # @jwt_required()
     @marshal_with(playlist_fields)
     def get(self, id):
         playlist = Playlist.query.get(id)
@@ -273,7 +274,7 @@ class PlaylistAPI(Resource):
         songs = Songs_in_Playlist.query.filter_by(playlist_id=id).all()
         return {"id": playlist.id, "name": playlist.name, "user_id": playlist.user_id, "songs": [song.song_id for song in songs]}
 
-    @jwt_required()
+    # @jwt_required()
     @marshal_with(playlist_fields)
     def post(self):
         args = playlist_parser.parse_args()
@@ -309,7 +310,7 @@ class PlaylistAPI(Resource):
 
         return new_playlist, 201
 
-    @jwt_required()
+    # @jwt_required()
     @marshal_with(playlist_fields)
     def put(self, id):
         args = playlist_parser.parse_args()
@@ -345,7 +346,7 @@ class PlaylistAPI(Resource):
         db.session.commit()
         return playlist, 201
 
-    @jwt_required()
+    # @jwt_required()
     def delete(self, id):
         playlist = Playlist.query.get(id)
         if playlist is None:
@@ -357,16 +358,23 @@ class PlaylistAPI(Resource):
 
 
 class AlbumAPI(Resource):
-    @jwt_required()
+    # @jwt_required()
     @marshal_with(album_fields)
-    def get(self, id):
-        album = Album.query.get(id)
-        if album is None:
-            raise NotFound("Album {} doesn't exist".format(id))
-        songs = Songs_in_Album.query.filter_by(album_id=id).all()
-        return {"id": album.id, "name": album.name, "user_id": album.user_id, "songs": [song.song_id for song in songs]}
+    def get(self, id=None):
+        if id is None:
+            albums = Album.query.all()
+            songs = Songs_in_Album.query.filter_by(id=id).all()
+            return [{"id": album.id, "name": album.name, "user_id": album.user_id,
+                     "songs": [song.song_id for song in songs]} for album in albums]
+        else:
+            album = Album.query.get(id)
+            if album is None:
+                raise NotFound("Album {} doesn't exist".format(id))
+            songs = Songs_in_Album.query.filter_by(id=id).all()
+            return {"id": album.id, "name": album.name, "user_id": album.user_id, "songs": [song.song_id for song in songs]}
 
-    @jwt_required()
+
+    # @jwt_required()
     @marshal_with(album_fields)
     def post(self):
         args = album_parser.parse_args()
@@ -400,9 +408,9 @@ class AlbumAPI(Resource):
         new_album.songs = song_ids
         db.session.commit()
 
-        return new_album, 201
+        return new_album, 200
 
-    @jwt_required()
+    # @jwt_required()
     @marshal_with(album_fields)
     def put(self, id):
         args = album_parser.parse_args()
@@ -436,7 +444,7 @@ class AlbumAPI(Resource):
         db.session.commit()
         return album, 201
 
-    @jwt_required()
+    # @jwt_required()
     def delete(self, id):
         album = Album.query.get(id)
         if album is None:
@@ -448,7 +456,7 @@ class AlbumAPI(Resource):
 
 
 class RatingAPI(Resource):
-    @jwt_required()
+    # @jwt_required()
     @marshal_with(rating_fields)
     def get(self, rating_id):
         rating = Rating.query.get(rating_id)
@@ -456,7 +464,7 @@ class RatingAPI(Resource):
             raise NotFound("Rating not found")
         return rating
 
-    @jwt_required()
+    # @jwt_required()
     @marshal_with(rating_fields)
     def post(self):
         args = rating_parser.parse_args()
@@ -472,7 +480,7 @@ class RatingAPI(Resource):
         db.session.commit()
         return new_rating, 201
 
-    @jwt_required()
+    # @jwt_required()
     @marshal_with(rating_fields)
     def put(self, rating_id):
         args = rating_parser.parse_args()
@@ -485,7 +493,7 @@ class RatingAPI(Resource):
         db.session.commit()
         return rating
 
-    @jwt_required()
+    # @jwt_required()
     def delete(self, rating_id):
         rating = Rating.query.get(rating_id)
         if not rating:
