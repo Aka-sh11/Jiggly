@@ -11,7 +11,7 @@
             </div>
         </div>
         <div class="blox">
-            <div class="box-s" v-for="song in songs" :key="song.id">
+            <div class="box-s" v-for="song in Songs" :key="song.id">
                 <div class="box-title">
                     <h6>{{ song.title }}</h6>
                     <div class="form-check">
@@ -120,58 +120,61 @@ export default {
     components: {
         NavBar
     },
-    data() {
-        return {
-            songs: [],
-            Name: ''
-        }
-    },
-    created() {
-        this.fetchSongs()
-    },
-    methods: {
-        async fetchSongs() {
-            try {
-                const response = await axios.get('http://localhost:5000/api/song')
-                this.songs = response.data.map(song => ({ ...song, selected: false }))
-            } catch (error) {
-                alert(error)
-            }
-        },
-        async createPlaylistAlbum() {
-            const songIds = this.songs.filter(song => song.selected).map(song => song.id)
-            const data = {
-                name: this.Name,
-                song_ids: songIds,
-                user_id: 6
-            }
-
-            if (this.$route.name === 'new-playlist') {
-                console.log(`Creating new playlist: ${this.Name}`)
-            } else if (this.$route.name === 'new-album') {
-                console.log(`Creating new album: ${this.Name}`)
-                try {
-                    const response = await axios.post('http://127.0.0.1:5000/api/album', data)
-                    console.log(response.data)
-                } catch (error) {
-                    alert(error)
-                }
-            }
-
-            if (this.$route.name === 'new-playlist') {
-                this.$router.push('/user/dashboard')
-            } else if (this.$route.name === 'new-album') {
-                this.$router.push('/creator/dashboard')
-            }
-        }
-    },
     setup() {
+        const Name = ref('')
         const router = useRouter()
         const route = useRoute()
         const heading = ref('')
         const placeholder = ref('')
+        const Songs = ref([])
+        const user_id = 2
 
+        const fetchSongs = async () => {
+            try {
+                const response = await axios.get('http://127.0.0.1:5000/api/song')
+                Songs.value = response.data // Update the songs array with the fetched data
+                Songs.value.forEach(song => {
+                    song.selected = false;
+                })
+            } catch (error) {
+                console.error('Failed to fetch songs:', error)
+            }
+        }
+
+        const createPlaylistAlbum = async () => {
+            const selectedSongs = Songs.value.filter(song => song.selected).map(song => song.id)
+
+            // Prepare the data for the POST request
+            const Data = {
+                name: Name.value,
+                user_id: user_id,
+                songs: selectedSongs
+            }
+            // Call your API to create a new playlist/album
+            if (route.name === 'new-playlist') {
+                try {
+                    // Send the POST request to create the album
+                    await axios.post('http://127.0.0.1:5000/api/playlist', Data)
+
+                    // Redirect to the creator dashboard
+                    router.push('/user/dashboard')
+                } catch (error) {
+                    console.error('Failed to create playlist:', error)
+                }
+            } else if (route.name === 'new-album') {
+                try {
+                    // Send the POST request to create the album
+                    await axios.post('http://127.0.0.1:5000/api/album', Data)
+
+                    // Redirect to the creator dashboard
+                    router.push('/creator/dashboard')
+                } catch (error) {
+                    console.error('Failed to create album:', error)
+                }
+            }
+        }
         onMounted(() => {
+            fetchSongs()
             if (route.name === 'new-playlist') {
                 heading.value = 'Create New Playlist'
                 placeholder.value = 'Enter Playlist Name'
@@ -182,8 +185,11 @@ export default {
         })
 
         return {
+            Name,
+            createPlaylistAlbum,
             heading,
-            placeholder
+            placeholder,
+            Songs
         }
     }
 }

@@ -159,7 +159,7 @@ class UserAPI(Resource):
             username=data['username'], password=hashed_password, email=data['email'], role_id=role.id)
         db.session.add(new_user)
         db.session.commit()
-        return new_user, 201
+        return new_user, 200
 
     # @jwt_required()
     @marshal_with(user_fields)
@@ -189,7 +189,7 @@ class UserAPI(Resource):
             raise NotFound("User not found")
         db.session.delete(user)
         db.session.commit()
-        return '', 204
+        return '', 200
 
 
 class SongAPI(Resource):
@@ -256,9 +256,12 @@ class SongAPI(Resource):
         song = Songs.query.get(song_id)
         if not song:
             raise NotFound("Song not found")
-        Songs_in_Album.query.filter_by(song_id=song_id).delete()  # 1st delter it from Album
-        Songs_in_Playlist.query.filter_by(song_id=song_id).delete()  # then delete it from Playlist
-        Rating.query.filter_by(song_id=song_id).delete()  # then delete all its reatings
+        Songs_in_Album.query.filter_by(
+            song_id=song_id).delete()  # 1st delter it from Album
+        Songs_in_Playlist.query.filter_by(
+            song_id=song_id).delete()  # then delete it from Playlist
+        # then delete all its reatings
+        Rating.query.filter_by(song_id=song_id).delete()
         db.session.delete(song)
         db.session.commit()
         return '', 200
@@ -267,12 +270,27 @@ class SongAPI(Resource):
 class PlaylistAPI(Resource):
     # @jwt_required()
     @marshal_with(playlist_fields)
-    def get(self, id):
-        playlist = Playlist.query.get(id)
-        if playlist is None:
-            raise NotFound("Playlist {} doesn't exist".format(id))
-        songs = Songs_in_Playlist.query.filter_by(playlist_id=id).all()
-        return {"id": playlist.id, "name": playlist.name, "user_id": playlist.user_id, "songs": [song.song_id for song in songs]}
+    def get(self, id=None):
+        if id is None:
+            playlists = Playlist.query.all()
+            result = []
+            for playlist in playlists:
+                songs = Songs_in_Playlist.query.filter_by(
+                    playlist_id=playlist.id).all()
+                playlist_info = {
+                    "id": playlist.id,
+                    "name": playlist.name,
+                    "user_id": playlist.user_id,
+                    "songs": [song.song_id for song in songs]
+                }
+                result.append(playlist_info)
+            return result
+        else:
+            playlist = Playlist.query.get(id)
+            if playlist is None:
+                raise NotFound("Playlist {} doesn't exist".format(id))
+            songs = Songs_in_Playlist.query.filter_by(playlist_id=id).all()
+            return {"id": playlist.id, "name": playlist.name, "user_id": playlist.user_id, "songs": [song.song_id for song in songs]}
 
     # @jwt_required()
     @marshal_with(playlist_fields)
@@ -308,7 +326,7 @@ class PlaylistAPI(Resource):
         new_playlist.songs = song_ids
         db.session.commit()
 
-        return new_playlist, 201
+        return new_playlist, 200
 
     # @jwt_required()
     @marshal_with(playlist_fields)
@@ -344,7 +362,7 @@ class PlaylistAPI(Resource):
             song_ids.append(song_id)
         playlist.songs = song_ids
         db.session.commit()
-        return playlist, 201
+        return playlist, 200
 
     # @jwt_required()
     def delete(self, id):
@@ -354,7 +372,7 @@ class PlaylistAPI(Resource):
         Songs_in_Playlist.query.filter_by(playlist_id=id).delete()
         db.session.delete(playlist)
         db.session.commit()
-        return '', 204
+        return '', 200
 
 
 class AlbumAPI(Resource):
@@ -363,16 +381,23 @@ class AlbumAPI(Resource):
     def get(self, id=None):
         if id is None:
             albums = Album.query.all()
-            songs = Songs_in_Album.query.filter_by(id=id).all()
-            return [{"id": album.id, "name": album.name, "user_id": album.user_id,
-                     "songs": [song.song_id for song in songs]} for album in albums]
+            result = []
+            for album in albums:
+                songs = Songs_in_Album.query.filter_by(album_id=album.id).all()
+                album_info = {
+                    "id": album.id,
+                    "name": album.name,
+                    "user_id": album.user_id,
+                    "songs": [song.song_id for song in songs]
+                }
+                result.append(album_info)
+            return result
         else:
             album = Album.query.get(id)
             if album is None:
                 raise NotFound("Album {} doesn't exist".format(id))
-            songs = Songs_in_Album.query.filter_by(id=id).all()
+            songs = Songs_in_Album.query.filter_by(album_id=id).all()
             return {"id": album.id, "name": album.name, "user_id": album.user_id, "songs": [song.song_id for song in songs]}
-
 
     # @jwt_required()
     @marshal_with(album_fields)
@@ -442,7 +467,7 @@ class AlbumAPI(Resource):
             song_ids.append(song_id)
         album.songs = song_ids
         db.session.commit()
-        return album, 201
+        return album, 200
 
     # @jwt_required()
     def delete(self, id):
@@ -452,7 +477,7 @@ class AlbumAPI(Resource):
         Songs_in_Album.query.filter_by(album_id=id).delete()
         db.session.delete(album)
         db.session.commit()
-        return '', 204
+        return '', 200
 
 
 class RatingAPI(Resource):

@@ -1,9 +1,9 @@
 <template>
     <div class="card text-center" style="width: fit-content;">
         <div class="card-body">
-            <div class="card-title">album.title</div>
+            <div class="card-title">{{ Data.name }}</div>
             <div class="card-content">
-                <router-link :to="`/album/album_name`" class="btn btn-info btn-sm">View Tracks</router-link>
+                <router-link :to="`/album/${Data.id}`" class="btn btn-info btn-sm">View Tracks</router-link>
             </div>
         </div>
     </div>
@@ -17,6 +17,9 @@
     border-radius: 25px;
     border: 1px solid aquamarine;
     margin-top: 10px;
+    /* margin-bottom: 12px;
+    margin-left: 35px;
+    margin-right: 25px; */
 
 }
 
@@ -35,15 +38,28 @@
 
 
 <script>
+import axios from 'axios';
+
 export default {
     name: 'AlbumCard',
+    props: ['album'],
     data() {
         return {
-            album: {
-                title: '',
-                id: ''
+            Data: {}
+        };
+    },
+    methods: {
+        async fetchData() {
+            try {
+                const response = await axios.get('http://localhost:5000/api/album/' + this.album);
+                this.Data = response.data;
+            } catch (error) {
+                console.error(error);
             }
         }
+    },
+    mounted() {
+        this.fetchData();
     }
 }
 </script>

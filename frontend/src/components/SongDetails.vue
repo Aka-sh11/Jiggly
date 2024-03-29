@@ -1,37 +1,37 @@
 <template>
     <NavBar />
     <div class="box-m">
-        <!-- <div class="overflow-auto"> -->
-        <div class="box">
-            <div class="header">
-                <h2 v-if="song">{{ song.title }}</h2>
-                <nav>
-                    <button class="btn btn-info btn-sm" @click="rateSong"
-                        style="background-color: cadetblue;">Rate</button>
+        <div class="overflow-auto">
+            <div class="box">
+                <div class="header">
+                    <h2 v-if="song">{{ song.title }}</h2>
+                    <nav>
+                        <button class="btn btn-info btn-sm" @click="rateSong"
+                            style="background-color: cadetblue;">Rate</button>
 
-                    <div v-if="showRating">
-                        <input type="range" id="rating" v-model.number="rating" min="0" max="5">
-                        <span>{{ rating }}</span>
-                    </div>
-                </nav>
-            </div>
-            <h6 v-if="song">{{ song.singer }} <b>|</b> {{ song.date.substring(0, 4) }}</h6>
-            <audio controls v-if="song">
-                <source :src="'/audio/' + song.filename" type="audio/mp3" />
-            </audio>
-            <div class="box overflow-auto" style="background-color: gainsboro;">
-                <p v-if="song">{{ song.lyrics }}</p>
-            </div>
-            <br />
-            <div class="emoji" v-for="( Icon, index ) in  reactionIcons " :key="index">
-                <button @click="triggerAnimation(index)" :class="{ pop: Icon.pop, float: Icon.float }"
-                    style="font-size: 1.2rem;">
-                    {{ Icon.icon }}
-                </button>
+                        <div v-if="showRating">
+                            <input type="range" id="rating" v-model.number="rating" min="0" max="5">
+                            <span>{{ rating }}</span>
+                        </div>
+                    </nav>
+                </div>
+                <h6 v-if="song">{{ song.singer }} <b>|</b> {{ song.date.substring(0, 4) }}</h6>
+                <audio controls v-if="song">
+                    <source :src="'/audio/' + song.filename" type="audio/mp3" />
+                </audio>
+                <div class="box" style="background-color: gainsboro;">
+                    <p v-if="song">{{ song.lyrics }}</p>
+                </div>
+                <br />
+                <div class="emoji" v-for="( Icon, index ) in  reactionIcons " :key="index">
+                    <button @click="triggerAnimation(index)" :class="{ pop: Icon.pop, float: Icon.float }"
+                        style="font-size: 1.2rem;">
+                        {{ Icon.icon }}
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-    <!-- </div> -->
 </template>
 
 <style scoped>
@@ -62,7 +62,7 @@ button {
 }
 
 .overflow-auto {
-    height: 38vh;
+    height: 80vh;
     overflow-y: auto;
 }
 

@@ -155,7 +155,7 @@ export default {
                 })
 
                 // Append the dummy userId to the form data
-                const dummyUserId = 6; // replace with your dummy user ID
+                const dummyUserId = 2; // replace with your dummy user ID
                 formData.append('user_id', dummyUserId)
 
                 try {

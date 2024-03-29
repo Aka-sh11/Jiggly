@@ -79,16 +79,15 @@ s<template>
                                 <h5>{{ album.name}}</h5>
                                 <ul class="nav">
                                     <li class="nav-item">
-                                        <router-link :to="'/album/album_name'" class="btn btn-info btn-sm">View
+                                        <router-link :to="'/album/'+album.id" class="btn btn-info btn-sm">View
                                             Tracks</router-link>
                                     </li>
                                     <li class="nav-item">
-                                        <router-link :to="'/creator/album/album_name/edit'"
+                                        <router-link :to="'/creator/album/'+album.id+'/edit'"
                                             class="btn btn-info btn-sm">Edit</router-link>
                                     </li>
                                     <li class="nav-item">
-                                        <router-link :to="'/delete_album/' + album.id"
-                                            class="btn btn-info btn-sm">Delete</router-link>
+                                        <button @click="deleteAlbum(album.id)" class="btn btn-info btn-sm">Delete</button>
                                     </li>
                                 </ul>
                             </div>
@@ -239,6 +238,15 @@ export default {
             axios.delete(`http://127.0.0.1:5000/api/song/${id}`)
                 .then(() => {
                     this.fetchSongs(); // Refresh the list after deletion
+                })
+                .catch(error => {
+                    alert(error);
+                });
+        },
+        deleteAlbum(id) {
+            axios.delete(`http://127.0.0.1:5000/api/album/${id}`)
+                .then(() => {
+                    this.fetchAlbums(); // Refresh the list after deletion
                 })
                 .catch(error => {
                     alert(error);

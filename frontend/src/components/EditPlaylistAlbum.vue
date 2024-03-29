@@ -4,19 +4,18 @@
         <div class="container">
             <div class="header">
                 <h4>{{ heading }}</h4>
-                <input v-model="playlistName" type="text" class="form-control" :placeholder='placeholder' />
+                <input v-model="Name" type="text" class="form-control" :placeholder='placeholder' required />
             </div>
             <div class="centered">
                 <input type="submit" class="btn btn-success" value="Edit" />
             </div>
         </div>
         <div class="blox">
-            <div class="box-s" v-for="n in 15" :key="n">
+            <div class="box-s" v-for="song in Songs" :key="song.id">
                 <div class="box-title">
-                    <h6>song.titlehh</h6>
+                    <h6>{{ song.title }}</h6>
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" :value="n" name="song_ids" checked />
-                        <!-- if form value in playlist the checked -->
+                        <input class="form-check-input" type="checkbox" v-model="song.selected" />
                     </div>
                 </div>
             </div>
@@ -114,6 +113,7 @@ input {
 import NavBar from '@/components/NavBar.vue'
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import axios from 'axios'
 
 export default {
     name: 'EditPlaylistAlbum',
@@ -126,13 +126,53 @@ export default {
         const route = useRoute()
         const heading = ref('')
         const placeholder = ref('')
+        const Songs = ref([])
+        const user_id = 2
+        const param = route.params.id
+
+        const fetchSongs = async () => {
+            try {
+                const response = await axios.get('http://127.0.0.1:5000/api/song')
+                Songs.value = response.data // Update the songs array with the fetched data
+                Songs.value.forEach(song => {
+                    song.selected = false;
+                })
+            } catch (error) {
+                console.error('Failed to fetch songs:', error)
+            }
+        }
 
         const EditPlaylistAlbum = async () => {
+            const selectedSongs = Songs.value.filter(song => song.selected).map(song => song.id)
+            if (selectedSongs.length === 0) {
+                alert('Must have at least one song.')
+                return
+            }
             // Call your API to create a edit playlist/album
             if (route.name === 'edit-playlist') {
-                console.log(`Edited playlist: ${Name.value}`)
+                try {
+                    // const selectedSongs = Songs.value.filter(song => song.selected).map(song => song.id)
+                    const response = await axios.put(`http://127.0.0.1:5000/api/playlist/${param}`, {
+                        name: Name.value,
+                        user_id: user_id,
+                        songs: selectedSongs
+                    })
+                    console.log(response.data)
+                } catch (error) {
+                    alert('Failed to edit playlist:', error)
+                }
             } else if (route.name === 'edit-album') {
-                console.log(`Edited album: ${Name.value}`)
+                try {
+                    // const selectedSongs = Songs.value.filter(song => song.selected).map(song => song.id)
+                    const response = await axios.put(`http://127.0.0.1:5000/api/album/${param}`, {
+                        name: Name.value,
+                        user_id: user_id,
+                        songs: selectedSongs
+                    })
+                    console.log(response.data)
+                } catch (error) {
+                    alert('Failed to edit album:', error)
+                }
             }
             // If form submission is successful, redirect to dashboard
             if (route.name === 'edit-playlist') {
@@ -141,13 +181,38 @@ export default {
                 router.push('/creator/dashboard')
             }
         }
-        onMounted(() => {
+        onMounted(async () => {
+            await fetchSongs()
             if (route.name === 'edit-playlist') {
                 heading.value = 'Edit Playlist'
-                placeholder.value = 'Playlist.Name'
+                placeholder.value = 'Playlist Name'
+                try {
+                    const response = await axios.get(`http://127.0.0.1:5000/api/playlist/${param}`)
+                    const playlistSongs = response.data.songs
+                    Name.value = response.data.name
+                    Songs.value.forEach(song => {
+                        if (playlistSongs.includes(song.id)) {
+                            song.selected = true
+                        }
+                    })
+                } catch (error) {
+                    console.error('Failed to fetch album songs:', error)
+                }
             } else if (route.name === 'edit-album') {
                 heading.value = 'Edit Album'
-                placeholder.value = 'Album.Name'
+                placeholder.value = 'Album Name'
+                try {
+                    const response = await axios.get(`http://127.0.0.1:5000/api/album/${param}`)
+                    const albumSongs = response.data.songs
+                    Name.value = response.data.name
+                    Songs.value.forEach(song => {
+                        if (albumSongs.includes(song.id)) {
+                            song.selected = true
+                        }
+                    })
+                } catch (error) {
+                    console.error('Failed to fetch album songs:', error)
+                }
             }
         })
 
@@ -155,7 +220,8 @@ export default {
             Name,
             EditPlaylistAlbum,
             heading,
-            placeholder
+            placeholder,
+            Songs
         }
     }
 }

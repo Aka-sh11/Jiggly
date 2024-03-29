@@ -45,17 +45,17 @@ const router = createRouter({
       component: () => import('@/components/NewPlaylistAlbum.vue')
     },
     {
-      path: '/user/playlist/playlist_name',
+      path: '/user/playlist/:id',
       name: 'playlist',
       component: () => import('@/components/ViewTracks.vue')
     },
     {
-      path: '/user/playlist/playlist.name/edit',
+      path: '/user/playlist/:id/edit',
       name: 'edit-playlist',
       component: () => import('@/components/EditPlaylistAlbum.vue')
     },
     {
-      path: '/album/album_name',
+      path: '/album/:id',
       name: 'album',
       component: () => import('@/components/ViewTracks.vue')
     },
@@ -80,7 +80,7 @@ const router = createRouter({
       component: () => import('@/components/NewPlaylistAlbum.vue')
     },
     {
-      path: '/creator/album/album_name/edit',
+      path: '/creator/album/:id/edit',
       name: 'edit-album',
       component: () => import('@/components/EditPlaylistAlbum.vue')
     },

@@ -10,9 +10,10 @@
           </router-link>
         </div>
       </div>
-      <div class="col">
-        <SongCard v-for="n in 4" :key="n" />
+      <div class="col" v-if="songs">
+        <SongCard v-for="song in songs.sort((a, b) => b.id - a.id).slice(0, 4) " :key="song" :song="song.id" />
       </div>
+
     </div>
     <div class="row-fluid" style="padding-top: 15px;">
       <div class="d-flex justify-content-between">
@@ -23,8 +24,8 @@
           </router-link>
         </div>
       </div>
-      <div class="col">
-        <PlaylistCard v-for="n in 6" :key="n" />
+      <div class="col-p">
+        <PlaylistCard v-for="playlist in playlists" :key="playlist" :playlist="playlist.id" />
       </div>
     </div>
     <div class="row-fluid">
@@ -32,31 +33,46 @@
         <h5 class="text-start">Albums</h5>
       </div>
       <div class="col-a">
-        <AlbumCard v-for="n in 5" :key="n" />
+        <AlbumCard v-for="album in albums" :key="album" :album="album.id" />
       </div>
     </div>
-    <div class="row-fluid">
-      <div class="d-flex justify-content-between">
-        <h5 class="text-start">Genres</h5>
-      </div>
-      <div class="col" style="padding-bottom: 10px;">
-        <SongCard v-for="n in 4" :key="n" />
+    <div v-for="genre in genres" :key="genre">
+      <div class="row-fluid">
+        <div class="d-flex justify-content-between">
+          <h5 class="text-start">{{ genre }}</h5>
+        </div>
+        <div class="col-g" style="padding-bottom: 10px;">
+          <SongCard v-for="song in songs.filter(song => song.genre === genre) " :key="song" :song="song.id" />
+        </div>
       </div>
     </div>
+
   </div>
 </template>
 
 <style scoped>
-.col {
+h5 {
+  font-weight: bold;
+  color: chocolate;
+}
+
+.col,
+.col-p {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-around;
-  /* padding-top: 10px; */
+}
+
+.col-g {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
 }
 
 .col-a {
   display: flex;
   justify-content: space-evenly;
-  /* padding-top: 8px; */
+  flex-wrap: wrap;
 }
 
 .row-fluid {
@@ -69,19 +85,52 @@ import NavBar from '@/components/NavBar.vue'
 import SongCard from '@/components/SongCard.vue'
 import AlbumCard from '@/components/AlbumCard.vue'
 import PlaylistCard from '@/components/PlaylistCard.vue'
+import axios from 'axios';
 
 export default {
   components: {
-    NavBar, SongCard, AlbumCard, PlaylistCard
+    NavBar, SongCard, PlaylistCard, AlbumCard
   },
   data() {
     return {
-      song: {
-        title: '',
-        filename: '',
-        id: ''
+      songs: [], // Initialize with an empty array
+      playlists: [], // Initialize with an empty object
+      albums: [], // Initialize with an empty object
+      genres: [], // Initialize with an empty object
+    };
+  },
+  methods: {
+    async loadSongs() {
+      try {
+        const response = await axios.get('http://127.0.0.1:5000/api/song');
+        this.songs = response.data; // Update songs data
+        const genres = new Set(this.songs.map(song => song.genre));
+        this.genres = Array.from(genres);
+      } catch (error) {
+        console.error(error);
       }
-    }
-  }
+    },
+    async loadPlaylists() {
+      try {
+        const response = await axios.get('http://127.0.0.1:5000/api/playlist');
+        this.playlists = response.data; // Update songs data
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    async loadAlbums() {
+      try {
+        const response = await axios.get('http://127.0.0.1:5000/api/album');
+        this.albums = response.data; // Update songs data
+      } catch (error) {
+        console.error(error);
+      }
+    },
+  },
+  mounted() {
+    this.loadSongs();
+    this.loadPlaylists();
+    this.loadAlbums();
+  },
 }
 </script>
