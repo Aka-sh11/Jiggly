@@ -12,27 +12,27 @@
                             <h5>Tracks</h5>
                         </router-link> <br />
                         <em>
-                            <p>current_user.songs.length </p>
+                            <p>{{ songData.length }}</p>
                         </em>
                     </div>
                     <div class="col">
                         <h5>Genre</h5><br />
                         <em>
-                            <p>average </p>
+                            <p>{{ genres.length }}</p>
                         </em>
                     </div>
                     <div class="col">
                         <router-link to="/admin/albums">
                             <h5>Albums</h5>
                         </router-link> <br />
-                        <p>current_user.albums.length</p>
+                        <p>{{ albumData.length }}</p>
                     </div>
                 </div>
                 <div class="row-fluid">
                     <div class="col-fluid">
                         <h4>Normal Users</h4> <br />
                         <em>
-                            <p>current_user.songs.length </p>
+                            <p>{{ normalUser.length }} </p>
                         </em>
                     </div>
                     <div class="col-fluid">
@@ -40,7 +40,7 @@
                             <h4>Creators</h4>
                         </router-link> <br />
                         <em>
-                            <p>current_user.songs.length </p>
+                            <p>{{ creator.length }}</p>
                         </em>
                     </div>
                 </div>
@@ -144,9 +144,15 @@ h3 {
     border-radius: 25px;
     margin-top: 10px;
 }
+
+p {
+    font-weight: bold;
+    font-size: larger;
+}
 </style>
 
 <script>
+import axios from 'axios';
 import NavBar from './NavBar.vue'
 import GraphChart from './GraphsComponent.vue'
 
@@ -155,6 +161,38 @@ export default {
     components: {
         NavBar,
         GraphChart
+    },
+    data() {
+        return {
+            songData: null,
+            userData: null,
+            albumData: null,
+            genres: null,
+            normalUser: null,
+            creator: null
+        }
+    },
+    created() {
+        this.fetchData();
+    },
+    methods: {
+        async fetchData() {
+            try {
+                const songResponse = await axios.get('http://127.0.0.1:5000/api/song');
+                this.songData = songResponse.data;
+                this.genres = [...new Set(this.songData.map(song => song.genre))];
+
+                const userResponse = await axios.get('http://127.0.0.1:5000/api/user');
+                this.userData = userResponse.data;
+                this.normalUser = this.userData.filter(user => user.role === 'User')
+                this.creator = this.userData.filter(user => user.role === 'Creator')
+
+                const albumResponse = await axios.get('http://127.0.0.1:5000/api/album');
+                this.albumData = albumResponse.data;
+            } catch (error) {
+                console.error(error);
+            }
+        }
     }
 }
 </script>

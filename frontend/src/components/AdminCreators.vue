@@ -7,16 +7,16 @@
         <div class="row-fluid">
             <div class="box">
                 <div class="overflow-auto">
-                    <div v-for="n in 4" :key="n" class="box-s">
+                    <div v-for="creator in creators" :key="creator.id" class="box-s">
                         <div class="header">
-                            <h6>creator.name</h6>
+                            <h6>{{ creator.username }}</h6>
                             <ul class="nav">
                                 <li class="nav-item">
                                     <div class=" btn btn-info btn-sm">
-                                        Songs : songs.length
+                                        Songs : {{ getCreatorSongs(creator).length }}
                                     </div>
                                     <div class=" btn btn-info btn-sm">
-                                        Albums: albums.length
+                                        Albums: {{ getCreatorAlbums(creator).length }}
                                     </div>
                                     <div class=" btn btn-info btn-sm">
                                         Avg Rating: creator.avgRating
@@ -25,7 +25,8 @@
                                 <li class="nav-item">
                                     <button class="btn btn-info btn-sm"
                                         :style="{ background: creator.blacklisted ? 'rgb(240 71 71)' : '#79eb79' }"
-                                        @click="toggleBlacklist">{{ creator.blacklisted ? 'Blacklist' : 'Whitelist'
+                                        @click="toggleBlacklist(creator)">{{ creator.blacklisted ? 'Blacklist' :
+                        'Whitelist'
                                         }}</button>
                                 </li>
                             </ul>
@@ -137,6 +138,7 @@ h6 {
 
 <script>
 import NavBar from './NavBar.vue'
+import axios from 'axios';
 
 export default {
     name: 'AdminCreators',
@@ -145,17 +147,48 @@ export default {
     },
     data() {
         return {
-            creator: {
-                id: 1,
-                blacklisted: false,
-                // Add more creator properties here
-            },
+            creators: [],
+            songs: [],
+            albums: []
         }
     },
+    created() {
+        this.fetchData();
+    },
     methods: {
-        toggleBlacklist() {
-            this.creator.blacklisted = !this.creator.blacklisted;
+        async fetchData() {
+            try {
+                const response = await axios.get('http://localhost:5000/api/user');
+                this.creators = response.data.filter(user => user.role === 'Creator');
+
+                const songsResponse = await axios.get('http://localhost:5000/creatorSongs');
+                this.songs = songsResponse.data;
+
+                const albumsResponse = await axios.get('http://localhost:5000/creatorAlbums');
+                this.albums = albumsResponse.data;
+            } catch (error) {
+                console.error(error);
+            }
         },
+        toggleBlacklist(creator) {
+            creator.blacklisted = !creator.blacklisted;
+
+            axios.put(`http://localhost:5000/blacklist/${creator.id}`, {
+                blacklisted: creator.blacklisted
+            })
+                .then(response => {
+                    console.log(response);
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+        },
+        getCreatorSongs(creator) {
+            return this.songs.filter(song => song.user_id === creator.id);
+        },
+        getCreatorAlbums(creator) {
+            return this.albums.filter(album => album.user_id === creator.id);
+        }
     },
 }
 </script>

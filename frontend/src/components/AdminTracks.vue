@@ -5,21 +5,21 @@
             <h2>All Tracks</h2>
         </div>
         <div class="row-fluid">
-            <div v-for="genre in genres" :key="genre.name" class="box">
+            <div v-for="genre in genres" :key="genre" class="box">
                 <div class="overflow-auto">
                     <div class="header">
-                        <h6 style="color:crimson;">{{ genre.name }}</h6>
+                        <h6 style="color:crimson;">{{ genre }}</h6>
                     </div>
-                    <div v-for="song in genre.songs" :key="song.id" class="box-s">
+                    <div v-for="song in songs.filter(song => song.genre === genre)  " :key="song.id" class="box-s">
                         <div class="header">
                             <h6>{{ song.title }}</h6>
                             <ul class="nav">
                                 <li class="nav-item">
-                                    <router-link to="/songs/song_name" class="btn btn-info btn-sm">View
+                                    <router-link :to="'/song/' + song.id" class="btn btn-info btn-sm">View
                                         Lyrics</router-link>
                                 </li>
                                 <li class="nav-item">
-                                    <router-link to="#" class="btn btn-info btn-sm">Delete</router-link>
+                                    <button @click="deleteSong(song.id)" class="btn btn-info btn-sm">Delete</button>
                                 </li>
                             </ul>
                         </div>
@@ -124,6 +124,7 @@ h6 {
 
 <script>
 import NavBar from './NavBar.vue'
+import axios from 'axios';
 
 export default {
     name: 'AdminTracks',
@@ -132,79 +133,33 @@ export default {
     },
     data() {
         return {
-            genres: [
-                {
-                    name: 'Genre 1',
-                    songs: [
-                        { id: 1, title: 'Song 1' },
-                        { id: 2, title: 'Song 2' },
-                        { id: 3, title: 'Song 3' },
-                        { id: 4, title: 'Song 4' },
-                    ],
-                },
-                {
-                    name: 'Genre 2',
-                    songs: [
-                        { id: 3, title: 'Song 3' },
-                        { id: 4, title: 'Song 4' },
-                    ],
-                },
-                {
-                    name: 'Genre 3',
-                    songs: [
-                        { id: 1, title: 'Song 1' },
-                        { id: 2, title: 'Song 2' },
-                        { id: 3, title: 'Song 3' },
-                        { id: 4, title: 'Song 4' },
-                    ],
-                },
-                {
-                    name: 'Genre 1',
-                    songs: [
-                        { id: 1, title: 'Song 1' },
-                        { id: 2, title: 'Song 2' },
-                        { id: 3, title: 'Song 3' },
-                        { id: 4, title: 'Song 4' },
-                    ],
-                },
-                {
-                    name: 'Genre 1',
-                    songs: [
-                        { id: 1, title: 'Song 1' },
-                        { id: 2, title: 'Song 2' },
-                        { id: 3, title: 'Song 3' },
-                        { id: 4, title: 'Song 4' },
-                    ],
-                },
-                {
-                    name: 'Genre 1',
-                    songs: [
-                        { id: 1, title: 'Song 1' },
-                        { id: 2, title: 'Song 2' },
-                        { id: 3, title: 'Song 3' },
-                        { id: 4, title: 'Song 4' },
-                    ],
-                },
-                {
-                    name: 'Genre 1',
-                    songs: [
-                        { id: 1, title: 'Song 1' },
-                        { id: 2, title: 'Song 2' },
-                        { id: 3, title: 'Song 3' },
-                        { id: 4, title: 'Song 4' },
-                    ],
-                },
-                {
-                    name: 'Genre 1',
-                    songs: [
-                        { id: 1, title: 'Song 1' },
-                        { id: 2, title: 'Song 2' },
-                        { id: 3, title: 'Song 3' },
-                        { id: 4, title: 'Song 4' },
-                    ],
-                },
-            ],
+            genres: [],
+            songs: []
         }
     },
+    methods: {
+        async loadSongs() {
+            try {
+                const response = await axios.get('http://127.0.0.1:5000/api/song');
+                this.songs = response.data; // Update songs data
+                const genres = new Set(this.songs.map(song => song.genre));
+                this.genres = Array.from(genres);
+            } catch (error) {
+                console.error(error);
+            }
+        },
+        deleteSong(id) {
+            axios.delete(`http://127.0.0.1:5000/api/song/${id}`)
+                .then(() => {
+                    this.loadSongs(); // Refresh the list after deletion
+                })
+                .catch(error => {
+                    alert(error);
+                });
+        },
+    },
+    mounted() {
+        this.loadSongs();
+    }
 }
 </script>

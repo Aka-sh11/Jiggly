@@ -12,11 +12,11 @@
                             <h6>{{ album.name }}</h6>
                             <ul class="nav">
                                 <li class="nav-item">
-                                    <router-link to="/album/album_name" class="btn btn-info btn-sm">View
+                                    <router-link :to="'/album/' + album.id" class="btn btn-info btn-sm">View
                                         Tracks</router-link>
                                 </li>
                                 <li class="nav-item">
-                                    <router-link to="#" class="btn btn-info btn-sm">Delete</router-link>
+                                    <button @click="deleteAlbum(album.id)" class="btn btn-info btn-sm">Delete</button>
                                 </li>
                             </ul>
                         </div>
@@ -122,6 +122,7 @@ h6 {
 
 <script>
 import NavBar from './NavBar.vue'
+import axios from 'axios';
 
 export default {
     name: 'AdminAlbums',
@@ -130,19 +131,30 @@ export default {
     },
     data() {
         return {
-            albums: [
-                { id: 1, name: 'Album 1' },
-                { id: 2, name: 'Album 2' },
-                { id: 3, name: 'Album 3' },
-                { id: 4, name: 'Album 4' },
-                { id: 5, name: 'Album 5' },
-                { id: 6, name: 'Album 6' },
-                { id: 7, name: 'Album 7' },
-                { id: 8, name: 'Album 8' },
-                { id: 9, name: 'Album 9' },
-                { id: 10, name: 'Album 10' },
-                // Add more albums here
-            ],
+            albums: [],
+        }
+    },
+    created() {
+        this.fetchAlbums();
+    },
+    methods: {
+        fetchAlbums() {
+            axios.get('http://127.0.0.1:5000/api/album')
+                .then(response => {
+                    this.albums = response.data;
+                })
+                .catch(error => {
+                    alert(error);
+                });
+        },
+        deleteAlbum(id) {
+            axios.delete(`http://127.0.0.1:5000/api/album/${id}`)
+                .then(() => {
+                    this.fetchAlbums(); // Refresh the list after deletion
+                })
+                .catch(error => {
+                    alert(error);
+                });
         }
     },
     computed: {

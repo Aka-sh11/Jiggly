@@ -409,6 +409,7 @@ class AlbumAPI(Resource):
         if user is None:
             raise NotFound(
                 "User with id {} doesn't exist".format(args['user_id']))
+
         # Check for unique name & user_id
         existing_album = Album.query.filter_by(
             name=args['name'], user_id=args['user_id']).first()
@@ -416,24 +417,25 @@ class AlbumAPI(Resource):
             raise AlreadyExists(
                 "Album with this name and user_id already exists")
 
-        new_album = Album(name=args['name'], user_id=args['user_id'])
-        db.session.add(new_album)
-        db.session.commit()
-
         song_ids = []
         for song_id in args['songs']:
             song = Songs.query.get(song_id)
             if song is None:
                 raise NotFound("Song with id {} doesn't exist".format(song_id))
+            song_ids.append(song_id)
+
+        new_album = Album(name=args['name'], user_id=args['user_id'])
+        db.session.add(new_album)
+        db.session.commit()
+
+        for song_id in song_ids:
             new_song_in_album = Songs_in_Album(
                 album_id=new_album.id, song_id=song_id)
             db.session.add(new_song_in_album)
-            song_ids.append(song_id)
-
+            db.session.commit()
         new_album.songs = song_ids
-        db.session.commit()
-
         return new_album, 200
+
 
     # @jwt_required()
     @marshal_with(album_fields)

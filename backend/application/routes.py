@@ -1,13 +1,12 @@
 from flask import current_app as app, jsonify, make_response, request
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, unset_jwt_cookies
 from .jwt import access
-from .models import Users, Songs, Album
+from .models import Users, Songs, Album, db
 from werkzeug.security import check_password_hash
 from sqlalchemy import or_
+from sqlalchemy.orm import joinedload
 
-@app.get('/')
-def home():
-    return "hello world"
+
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -47,3 +46,34 @@ def search():
     ).all()
     # Convert the results to JSON and return them
     return jsonify(song_results=song_results, album_results=album_results)
+
+
+@app.route('/creatorSongs', methods=['GET'])
+def get_songs():
+    songs = db.session.query(Songs).options(
+        joinedload(Songs.uploader).joinedload(Users.role)).all()
+    creator_songs = [
+        song.to_dict() for song in songs if song.uploader.role.name == 'Creator']
+    return jsonify(creator_songs)
+
+
+@app.route('/creatorAlbums', methods=['GET'])
+def get_albumss():
+    albums = db.session.query(Album).options(
+        joinedload(Album.creator).joinedload(Users.role)).all()
+    creator_albums = [
+        album.to_dict() for album in albums if album.creator.role.name == 'Creator']
+    return jsonify(creator_albums)
+
+
+@app.route('/blacklist/<int:id>', methods=['PUT'])
+def blacklist_user(id):
+    user = Users.query.get(id)
+    if user is None:
+        return jsonify({'error': 'User not found'}), 404
+
+    if 'blacklisted' in request.json:
+        user.blacklisted = request.json['blacklisted']
+        db.session.commit()
+
+    return jsonify({'message': 'User updated successfully'}), 200

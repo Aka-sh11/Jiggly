@@ -14,7 +14,7 @@ class Users(db.Model):
     role_id = db.Column(db.Integer, db.ForeignKey("role.id"), nullable=False)
     songs = db.relationship('Songs', backref='uploader', lazy=True)
     playlists = db.relationship('Playlist', backref='user', lazy=True)
-    albums = db.relationship('Album', backref='user', lazy=True)
+    albums = db.relationship('Album', backref='creator', lazy=True)
     ratings = db.relationship('Rating', backref='user', lazy=True)
     # roles = db.relationship('Role', backref='user', lazy=True)
     
@@ -46,6 +46,18 @@ class Songs(db.Model):
     filename = db.Column(db.String, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     __table_args__ = (UniqueConstraint('title', 'singer', name='unique_singer_title'),)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'singer': self.singer,
+            'date': self.date,
+            'lyrics': self.lyrics,
+            'genre': self.genre,
+            'filename': self.filename,
+            'user_id': self.user_id
+        }
   
     
 class Playlist(db.Model):
@@ -62,7 +74,7 @@ class Songs_in_Playlist(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     playlist_id = db.Column(db.Integer, db.ForeignKey('playlists.id'), nullable=False)
     song_id = db.Column(db.Integer, db.ForeignKey('songs.id'), nullable=False)
-    song = db.relationship('Songs', backref='songs_in_playlist', lazy=True)
+    song = db.relationship('Songs', backref='songs_playlist', lazy=True)
     
     
 class Album(db.Model):
@@ -71,6 +83,13 @@ class Album(db.Model):
     name = db.Column(db.String, nullable=False, unique=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     songs_in_album = db.relationship('Songs_in_Album', backref='albums', lazy=True)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'user_id': self.user_id
+        }
     
 class Songs_in_Album(db.Model):
     __tablename__ = 'songs_album'

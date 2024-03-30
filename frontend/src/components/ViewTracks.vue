@@ -16,15 +16,15 @@
             </router-link>
         </div>
         <div class="col">
-            <SongCard v-for="song in songs.sort((a, b) => a.title.localeCompare(b.title))  " :key="song"
-                :song="song.id" />
+            <SongCard v-for="song in songs.sort((a, b) => a.title.localeCompare(b.title))  " :key="song.id"
+                :song="song" />
         </div>
     </div>
-    <div v-else-if="$route.name === 'album'" class="Albums">
+    <div v-else-if="$route.name === 'album' || $route.name==='admin-albums'" class="Albums">
         <h2>{{ album.name }}</h2>
         <div class="col">
-            <SongCard v-for="song in songs.sort((a, b) => a.title.localeCompare(b.title)) " :key="song"
-                :song="song.id" />
+            <SongCard v-for="song in songs.sort((a, b) => a.title.localeCompare(b.title)) " :key="song.id"
+                :song="song" />
         </div>
     </div>
 </template>
@@ -78,26 +78,39 @@ export default {
         fetchData() {
             // Make API requests based on route name
             if (this.$route.name === 'all-songs') {
-                axios.get('http://127.0.0.1:5000/api/song').then(response => {
-                    this.songs = response.data; // Update songs data
-                });
+                axios.get('http://127.0.0.1:5000/api/song')
+                    .then(response => {
+                        this.songs = response.data; // Update songs data
+                    })
+                    .catch(error => {
+                        console.error(error); // Log error to console
+                    });
             } else if (this.$route.name === 'playlist') {
                 const playlistId = this.$route.params.id;
-                axios.get(`http://127.0.0.1:5000/api/playlist/${playlistId}`).then(response => {
-                    this.playlist = response.data; // Update playlist data
-                    this.songs = this.playlist.songs; // Update songs data
-                });
+                axios.get(`http://127.0.0.1:5000/api/playlist/${playlistId}`)
+                    .then(response => {
+                        this.playlist = response.data; // Update playlist data
+                        this.songs = this.playlist.songs; // Update songs data
+                    })
+                    .catch(error => {
+                        console.error(error); // Log error to console
+                    });
             } else if (this.$route.name === 'album') {
                 const albumId = this.$route.params.id;
-                axios.get(`http://127.0.0.1:5000/api/album/${albumId}`).then(response => {
-                    this.album = response.data; // Update album data
-                    this.songs = this.album.songs; // Update songs data
-                });
+                axios.get(`http://127.0.0.1:5000/api/album/${albumId}`)
+                    .then(response => {
+                        this.album = response.data; // Update album data
+                        this.songs = this.album.songs; // Update songs data
+                    })
+                    .catch(error => {
+                        console.error(error); // Log error to console
+                    });
             }
         }
     },
     mounted() {
         this.fetchData();
     },
+
 };
 </script>
