@@ -156,37 +156,90 @@ export default {
         return {
             song: null,
             rating: 0,
-            showRating: false
+            showRating: false,
+            user_id: 2,
+            ratingExists: false,
+            ratingId: null
+            // newRating: null
         };
     },
     methods: {
         rateSong() {
             this.showRating = true;
         },
-        fetchSongDetails(song_id) {
+        fetchSongDetails() {
+            const song_id = this.$route.params.id;
             axios.get(`http://127.0.0.1:5000/api/song/${song_id}`)
                 .then(response => {
                     this.song = response.data;
                 })
                 .catch(error => {
-                    alert(error);
+                    console.log(error);
                 });
         },
+        fetchRatingDetails(song_id, user_id) {
+            axios.get(`http://127.0.0.1:5000/api/ratings/${song_id}/${user_id}`)
+                .then(response => {
+                    if (response.data.length > 0) {
+                        this.rating = response.data[0].rating;
+                        this.ratingExists = true;
+                        this.ratingId = response.data[0].id;
+                    }
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+        },
+        updateRating(newRating) {
+            if (this.ratingExists && rating !== this.rating) {
+                // If rating exists and new rating is different, make a PUT request
+                axios.put(`http://127.0.0.1:5000/api/ratings/${this.ratingId}`, { song_id: this.song.id, user_id: this.user_id, rating: newRating })
+                    .then(response => {
+                        console.log('Rating updated successfully');
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
+            } else if (!this.ratingExists) {
+                // If rating does not exist, make a POST request
+                axios.post(`http://127.0.0.1:5000/api/ratings`, { song_id: this.song.id, user_id: this.user_id, rating: newRating })
+                    .then(response => {
+                        console.log('Rating created successfully');
+                        this.ratingExists = true;
+                        this.ratingId = response.data.id;
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
+            }
+        }
+
     },
     mounted() {
-        this.fetchSongDetails(this.$route.params.id);
+        const song_id = this.$route.params.id;
+        this.fetchSongDetails(song_id);
+        this.fetchRatingDetails(song_id, this.user_id);
     },
     watch: {
-        rating() {
-            setTimeout(() => {
-                this.showRating = false;
-            }, 1000);
-        }
+        rating: {
+            handler() {
+                try {
+                    this.updateRating(this.rating);
+                    setTimeout(() => {
+                        this.showRating = false;
+                    }, 3500);
+                } catch (error) {
+                    console.error('Error in watcher:', error);
+                }
+            },
+            deep: true
+        },
+        '$route': 'fetchSongDetails'
     },
     setup() {
         const reactionIcons = ref([
-            { icon: '❤️', pop: false, float: false },
             { icon: '👎', pop: false, float: false },
+            { icon: '❤️', pop: false, float: false },
             { icon: '🔥', pop: false, floa: false },
 
         ]);

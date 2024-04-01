@@ -485,11 +485,17 @@ class AlbumAPI(Resource):
 class RatingAPI(Resource):
     # @jwt_required()
     @marshal_with(rating_fields)
-    def get(self, rating_id):
-        rating = Rating.query.get(rating_id)
-        if not rating:
-            raise NotFound("Rating not found")
-        return rating
+    def get(self, song_id=None, user_id=None):
+        if song_id is None or user_id is None:
+            ratings = Rating.query.all()
+            return ratings
+        else:
+            rating = Rating.query.filter_by(song_id=song_id, user_id=user_id).first()
+            if not rating:
+                raise NotFound("Rating not found")
+            return rating
+
+
 
     # @jwt_required()
     @marshal_with(rating_fields)
@@ -505,7 +511,7 @@ class RatingAPI(Resource):
             rating=args['rating'], user_id=args['user_id'], song_id=args['song_id'])
         db.session.add(new_rating)
         db.session.commit()
-        return new_rating, 201
+        return new_rating, 200
 
     # @jwt_required()
     @marshal_with(rating_fields)
@@ -527,11 +533,11 @@ class RatingAPI(Resource):
             raise NotFound("Rating not found")
         db.session.delete(rating)
         db.session.commit()
-        return '', 204
+        return '', 200
 
 
 api.add_resource(UserAPI, '/user/<int:user_id>', '/user')
 api.add_resource(SongAPI, '/song/<int:song_id>', '/song')
 api.add_resource(PlaylistAPI, '/playlist/<int:id>', '/playlist')
 api.add_resource(AlbumAPI, '/album/<int:id>', '/album')
-api.add_resource(RatingAPI, '/ratings/<int:rating_id>', '/ratings')
+api.add_resource(RatingAPI, '/ratings/<int:rating_id>', '/ratings', '/ratings/<int:song_id>/<int:user_id>')

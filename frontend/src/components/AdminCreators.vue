@@ -19,7 +19,7 @@
                                         Albums: {{ getCreatorAlbums(creator).length }}
                                     </div>
                                     <div class=" btn btn-info btn-sm">
-                                        Avg Rating: creator.avgRating
+                                        Avg Rating: {{ creator.avgRating }}
                                     </div>
                                 </li>
                                 <li class="nav-item">
@@ -166,6 +166,15 @@ export default {
 
                 const albumsResponse = await axios.get('http://localhost:5000/creatorAlbums');
                 this.albums = albumsResponse.data;
+
+                // Fetch ratings and calculate average for each creator
+                const ratingsResponse = await axios.get('http://localhost:5000/api/ratings');
+                this.creators.forEach(creator => {
+                    const creatorRatings = ratingsResponse.data.filter(rating => rating.user_id === creator.id);
+                    const sum = creatorRatings.reduce((a, b) => a + b.rating, 0);
+                    creator.avgRating = (sum / creatorRatings.length) || 0;
+                    creator.avgRating = parseFloat(creator.avgRating.toFixed(2));
+                });
             } catch (error) {
                 console.error(error);
             }

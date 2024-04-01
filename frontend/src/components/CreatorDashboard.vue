@@ -76,18 +76,19 @@ s<template>
                         <div v-for="album in albums" :key="album.id" class="box"
                             style="margin-top: 15px; background-color: gainsboro; flex-direction: column;">
                             <div class="header">
-                                <h5>{{ album.name}}</h5>
+                                <h5>{{ album.name }}</h5>
                                 <ul class="nav">
                                     <li class="nav-item">
-                                        <router-link :to="'/album/'+album.id" class="btn btn-info btn-sm">View
+                                        <router-link :to="'/album/' + album.id" class="btn btn-info btn-sm">View
                                             Tracks</router-link>
                                     </li>
                                     <li class="nav-item">
-                                        <router-link :to="'/creator/album/'+album.id+'/edit'"
+                                        <router-link :to="'/creator/album/' + album.id + '/edit'"
                                             class="btn btn-info btn-sm">Edit</router-link>
                                     </li>
                                     <li class="nav-item">
-                                        <button @click="deleteAlbum(album.id)" class="btn btn-info btn-sm">Delete</button>
+                                        <button @click="deleteAlbum(album.id)"
+                                            class="btn btn-info btn-sm">Delete</button>
                                     </li>
                                 </ul>
                             </div>
@@ -209,11 +210,13 @@ export default {
             songs: [], // This will be set based on all songs
             albums: [], // This should be set based on the logged in user's albums
             average: 0, // This should be set based on the average rating
+            user_id: 2 // This should be set based on the logged in user
         };
     },
     created() {
         this.fetchSongs();
         this.fetchAlbums();
+        this.fetchAverageRating();
     },
     methods: {
         fetchSongs() {
@@ -251,7 +254,22 @@ export default {
                 .catch(error => {
                     alert(error);
                 });
+        },
+        fetchAverageRating() {
+            axios.get('http://127.0.0.1:5000/api/ratings')
+                .then(response => {
+                    // Filter the ratings for the given user_id
+                    const userRatings = response.data.filter(rating => rating.user_id === this.user_id);
+                    // Calculate the average rating
+                    const averageRating = userRatings.reduce((a, b) => a + b.rating, 0) / userRatings.length;
+                    // Round the average rating to 2 decimal places
+                    this.average = Math.round(averageRating * 100) / 100;
+                })
+                .catch(error => {
+                    console.log(error);
+                });
         }
+
     }
 }
 </script>

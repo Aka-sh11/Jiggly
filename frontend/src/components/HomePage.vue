@@ -18,6 +18,7 @@
                 <router-link to="/login">
                     <button type="button" class="btn btn-primary m-3">Sign In</button>
                 </router-link>
+                <!-- &nbsp; -->
                 <router-link to="/register">
                     <button type="button" class="btn btn-secondary m-3">Sign Up</button>
                 </router-link>
@@ -88,6 +89,13 @@ h3 {
 p {
     text-align: center;
 }
+
+.btn {
+    border-radius: 50%;
+    padding-top: 12%;
+    padding-bottom: 12%;
+
+}
 </style>
 
 <script>
@@ -95,5 +103,3 @@ export default {
     name: 'JigglyCard',
 }
 </script>
-
-

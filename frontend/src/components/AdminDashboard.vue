@@ -48,8 +48,13 @@
                     <div class="col-fluid"
                         style="background: -webkit-linear-gradient(109.6deg, rgba(48, 207, 208, 1) 11.2%, rgb(218, 63, 153) 92.5%);">
                         <h3>Various Key Graphs</h3> <br />
-                        <div>
-                            <GraphChart />
+                        <div style="display: flex; justify-content: space-between;">
+                            <div style="margin-right: 20px;">
+                                <PieChart />
+                            </div>
+                            <div>
+                                <BarChart />
+                            </div>
                         </div>
                         <br />
                     </div>
@@ -154,13 +159,15 @@ p {
 <script>
 import axios from 'axios';
 import NavBar from './NavBar.vue'
-import GraphChart from './GraphsComponent.vue'
+import PieChart from './PieChart.vue'
+import BarChart from './BarChart.vue'
 
 export default {
     name: 'AdminDashboard',
     components: {
         NavBar,
-        GraphChart
+        PieChart,
+        BarChart
     },
     data() {
         return {

@@ -7,7 +7,6 @@ from sqlalchemy import or_
 from sqlalchemy.orm import joinedload
 
 
-
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -34,18 +33,13 @@ def logout():
     return response, 200
 
 
-@app.route('/search', methods=['POST'])
+@app.route('/search/', methods=['GET'])
 def search():
-    query = request.json['search']
+    query = request.args.get('search')
     song_results = Songs.query.filter(
-        or_(Songs.title.contains(query), Songs.singer.contains(
-            query), Songs.genre.contains(query))
+        or_(Songs.title.ilike(f'%{query}%'))
     ).all()
-    album_results = Album.query.filter(
-        or_(Album.name.contains(query))
-    ).all()
-    # Convert the results to JSON and return them
-    return jsonify(song_results=song_results, album_results=album_results)
+    return jsonify(song_results=[song.to_dict() for song in song_results])
 
 
 @app.route('/creatorSongs', methods=['GET'])
