@@ -93,12 +93,16 @@ import NavBar from './NavBar.vue'
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
+import { useAuthStore } from '@/stores/authStore'
 
 export default {
     components: {
         NavBar
     },
     setup() {
+        const store = useAuthStore()
+        const user_id = store.user.id
+        const accessToken = store.accessToken
         const route = useRoute()
         const router = useRouter()
         const heading = ref('')
@@ -123,7 +127,8 @@ export default {
                 buttonText.value = 'Edit'
                 // Fetch the song data from your server and update `song.value`
                 try {
-                    const response = await axios.get(`http://127.0.0.1:5000/api/song/${songId}`);
+                    const response = await axios.get(`http://127.0.0.1:5000/api/song/${songId}`,
+                        { headers: { 'Authorization': `Bearer ${accessToken}` } });
                     if (response.status === 200) {
                         song.value = response.data; // update song data with response
                         originalSong.value = { ...response.data }
@@ -154,9 +159,7 @@ export default {
                     formData.append(key, song.value[key])
                 })
 
-                // Append the dummy userId to the form data
-                const dummyUserId = 2; // replace with your dummy user ID
-                formData.append('user_id', dummyUserId)
+                formData.append('user_id', user_id)
 
                 try {
                     let response;
@@ -169,7 +172,10 @@ export default {
                                 method: 'put',
                                 url: `http://127.0.0.1:5000/api/song/${songId}`,
                                 data: formData,
-                                headers: { 'Content-Type': 'application/json' }
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${accessToken}`
+                                }
                             })
                         } else {
                             alert('Please make some changes before submitting');
@@ -181,7 +187,10 @@ export default {
                             method: 'post',
                             url: 'http://127.0.0.1:5000/api/song',
                             data: formData,
-                            headers: { 'Content-Type': 'application/json' }
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${accessToken}`
+                            }
                         })
                     }
 

@@ -16,11 +16,12 @@
             </router-link>
         </div>
         <div class="col">
-            <SongCard v-for="song in songs.sort((a, b) => a.title.localeCompare(b.title))  " :key="song.id"
+            <SongCard v-for="song in songs.sort((a, b) => (a.title || '').localeCompare(b.title || '')) " :key="song.id"
                 :song="song" />
         </div>
+
     </div>
-    <div v-else-if="$route.name === 'album' || $route.name==='admin-albums'" class="Albums">
+    <div v-else-if="$route.name === 'album' || $route.name === 'admin-albums'" class="Albums">
         <h2>{{ album.name }}</h2>
         <div class="col">
             <SongCard v-for="song in songs.sort((a, b) => a.title.localeCompare(b.title)) " :key="song.id"
@@ -62,23 +63,28 @@ h2 {
 import NavBar from '@/components/NavBar.vue'
 import SongCard from '@/components/SongCard.vue'
 import axios from 'axios';
+import { useAuthStore } from '@/stores/authStore'
 
 export default {
     components: {
         NavBar, SongCard,
     },
     data() {
+        const store = useAuthStore()
         return {
             songs: [], // Initialize with an empty array
             playlist: [], // Initialize with an empty object
             album: [], // Initialize with an empty object
+            user_id: store.user.id,
+            accessToken: store.accessToken,
         };
     },
     methods: {
         fetchData() {
             // Make API requests based on route name
             if (this.$route.name === 'all-songs') {
-                axios.get('http://127.0.0.1:5000/api/song')
+                axios.get('http://127.0.0.1:5000/api/song',
+                    { headers: { 'Authorization': `Bearer ${this.accessToken}` } })
                     .then(response => {
                         this.songs = response.data; // Update songs data
                     })
@@ -87,7 +93,8 @@ export default {
                     });
             } else if (this.$route.name === 'playlist') {
                 const playlistId = this.$route.params.id;
-                axios.get(`http://127.0.0.1:5000/api/playlist/${playlistId}`)
+                axios.get(`http://127.0.0.1:5000/api/playlist/${playlistId}`,
+                    { headers: { 'Authorization': `Bearer ${this.accessToken}` } })
                     .then(response => {
                         this.playlist = response.data; // Update playlist data
                         this.songs = this.playlist.songs; // Update songs data
@@ -97,7 +104,8 @@ export default {
                     });
             } else if (this.$route.name === 'album') {
                 const albumId = this.$route.params.id;
-                axios.get(`http://127.0.0.1:5000/api/album/${albumId}`)
+                axios.get(`http://127.0.0.1:5000/api/album/${albumId}`,
+                    { headers: { 'Authorization': `Bearer ${this.accessToken}` } })
                     .then(response => {
                         this.album = response.data; // Update album data
                         this.songs = this.album.songs; // Update songs data

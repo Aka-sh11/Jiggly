@@ -147,19 +147,22 @@ button.float {
 import NavBar from '@/components/NavBar.vue'
 import { ref } from 'vue';
 import axios from 'axios';
+import { useAuthStore } from '@/stores/authStore'
 
 export default {
     components: {
         NavBar
     },
     data() {
+        const store = useAuthStore()
         return {
             song: null,
             rating: 0,
             showRating: false,
-            user_id: 2,
+            user_id: store.user.id,
             ratingExists: false,
-            ratingId: null
+            ratingId: null,
+            accessToken: store.accessToken
             // newRating: null
         };
     },
@@ -169,7 +172,8 @@ export default {
         },
         fetchSongDetails() {
             const song_id = this.$route.params.id;
-            axios.get(`http://127.0.0.1:5000/api/song/${song_id}`)
+            axios.get(`http://127.0.0.1:5000/api/song/${song_id}`,
+                { headers: { 'Authorization': `Bearer ${this.accessToken}` } })
                 .then(response => {
                     this.song = response.data;
                 })
@@ -178,7 +182,8 @@ export default {
                 });
         },
         fetchRatingDetails(song_id, user_id) {
-            axios.get(`http://127.0.0.1:5000/api/ratings/${song_id}/${user_id}`)
+            axios.get(`http://127.0.0.1:5000/api/ratings/${song_id}/${user_id}`,
+                { headers: { 'Authorization': `Bearer ${this.accessToken}` } })
                 .then(response => {
                     if (response.data.length > 0) {
                         this.rating = response.data[0].rating;
@@ -193,7 +198,8 @@ export default {
         updateRating(newRating) {
             if (this.ratingExists && rating !== this.rating) {
                 // If rating exists and new rating is different, make a PUT request
-                axios.put(`http://127.0.0.1:5000/api/ratings/${this.ratingId}`, { song_id: this.song.id, user_id: this.user_id, rating: newRating })
+                axios.put(`http://127.0.0.1:5000/api/ratings/${this.ratingId}`, { song_id: this.song.id, user_id: this.user_id, rating: newRating },
+                    { headers: { 'Authorization': `Bearer ${this.accessToken}` } })
                     .then(response => {
                         console.log('Rating updated successfully');
                     })
@@ -202,7 +208,8 @@ export default {
                     });
             } else if (!this.ratingExists) {
                 // If rating does not exist, make a POST request
-                axios.post(`http://127.0.0.1:5000/api/ratings`, { song_id: this.song.id, user_id: this.user_id, rating: newRating })
+                axios.post(`http://127.0.0.1:5000/api/ratings`, { song_id: this.song.id, user_id: this.user_id, rating: newRating },
+                    { headers: { 'Authorization': `Bearer ${this.accessToken}` } })
                     .then(response => {
                         console.log('Rating created successfully');
                         this.ratingExists = true;

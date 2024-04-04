@@ -86,13 +86,17 @@ import SongCard from '@/components/SongCard.vue'
 import AlbumCard from '@/components/AlbumCard.vue'
 import PlaylistCard from '@/components/PlaylistCard.vue'
 import axios from 'axios';
+import { useAuthStore } from '@/stores/authStore'
 
 export default {
   components: {
     NavBar, SongCard, PlaylistCard, AlbumCard
   },
   data() {
+    const store = useAuthStore()
     return {
+      user_id: store.user.id,
+      accessToken: store.accessToken,
       songs: [], // Initialize with an empty array
       playlists: [], // Initialize with an empty object
       albums: [], // Initialize with an empty object
@@ -102,7 +106,12 @@ export default {
   methods: {
     async loadSongs() {
       try {
-        const response = await axios.get('http://127.0.0.1:5000/api/song');
+        const response = await axios.get('http://127.0.0.1:5000/api/song',
+          {
+            headers: {
+              'Authorization': `Bearer ${this.accessToken}`
+            }
+          });
         this.songs = response.data; // Update songs data
         const genres = new Set(this.songs.map(song => song.genre));
         this.genres = Array.from(genres);
@@ -112,15 +121,21 @@ export default {
     },
     async loadPlaylists() {
       try {
-        const response = await axios.get('http://127.0.0.1:5000/api/playlist');
-        this.playlists = response.data; // Update songs data
+        const response = await axios.get('http://127.0.0.1:5000/api/playlist',
+          {
+            headers: { 'Authorization': `Bearer ${this.accessToken}` }
+          });
+        this.playlists = response.data.filter(playlist=>playlist.user_id===this.user_id); // Update songs data
       } catch (error) {
         console.error(error);
       }
     },
     async loadAlbums() {
       try {
-        const response = await axios.get('http://127.0.0.1:5000/api/album');
+        const response = await axios.get('http://127.0.0.1:5000/api/album',
+          {
+            headers: { 'Authorization': `Bearer ${this.accessToken}` }
+          });
         this.albums = response.data; // Update songs data
       } catch (error) {
         console.error(error);

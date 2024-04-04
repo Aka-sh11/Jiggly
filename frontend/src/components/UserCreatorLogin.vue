@@ -61,30 +61,27 @@ img {
 
 <script>
 import { ref } from 'vue'
-import axios from 'axios'
+import { useAuthStore } from '@/stores/authStore' 
+import { useRouter } from 'vue-router'
 
 export default {
   name: 'LoginForm',
   setup() {
     const username = ref('')
     const password = ref('')
+    const store = useAuthStore()
+    const router = useRouter()
 
     const loginUser = async () => {
       try {
-        const response = await axios.post('http://127.0.0.1:5000/login', {
-          username: username.value,
-          password: password.value
-        })
+        await store.login(username.value, password.value)
 
-        if (response.status === 200) {
-          // Store the access token in the local storage
-          localStorage.setItem('accessToken', response.data.access_token)
-
+        if (store.isLoggedIn) {
           // Check the user's role and redirect them to the appropriate dashboard
-          if (response.data.user.role_id === 2) {
-            window.location.href = '/user/dashboard'
-          } else if (response.data.user.role_id === 3) {
-            window.location.href = '/creator/dashboard'
+          if (store.user.role === 'User') {
+            router.push('/user/dashboard')
+          } else if (store.user.role === 'Creator') {
+            router.push('/creator/dashboard')
           }
         } else {
           // Handle error, e.g. show an error message

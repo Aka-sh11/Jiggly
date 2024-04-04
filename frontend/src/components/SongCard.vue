@@ -48,20 +48,26 @@ audio {
 
 <script>
 import axios from 'axios';
+import { useAuthStore } from '@/stores/authStore'
 
 export default {
     name: 'SongCard',
     props: ['song'],
     data() {
+        const store = useAuthStore();
         return {
             songData: {}, // Store song data for each ID
-            audioSource: null // Initialize audio source
+            audioSource: null, // Initialize audio source
+            user_id: store.user.id,
+            accessToken: store.accessToken
+
         };
     },
     methods: {
         async fetchSongData() {
             try {
-                const response = await axios.get('http://127.0.0.1:5000/api/song/' + this.song);
+                const response = await axios.get('http://127.0.0.1:5000/api/song/' + this.song,
+                    { headers: { 'Authorization': `Bearer ${this.accessToken}` } });
                 this.songData = response.data; // Update songData with the fetched data
             } catch (error) {
                 console.error('Error fetching song data:', error);

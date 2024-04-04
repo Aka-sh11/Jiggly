@@ -51,7 +51,7 @@
                             <router-link to="/creator/profile" class="nav-link">Profile</router-link>
                         </li><strong v-if="user.role !== 'Admin'">⚕️</strong>
                         <li class="nav-item">
-                            <router-link to="/" class="nav-link">Logout</router-link>
+                            <a class="nav-link" @click="logout">Logout</a>
                         </li>
                     </ul>
                 </div>
@@ -123,15 +123,14 @@ a {
 import { ref, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+import { useAuthStore } from '@/stores/authStore'
 
 export default {
     name: 'NavBar',
     setup() {
-        let user = ref({
-            role: 'Admin',
-            // role: 'User',
-            // role: 'Creator' // This should be set based on the logged in user's role
-        });
+        const store = useAuthStore();
+        const user = store.user;
+        // const accessToken = store.accessToken;
         let query = ref('');
         let results = ref([]);
         let searchPerformed = ref(false);
@@ -163,6 +162,11 @@ export default {
             }
         });
 
+        let logout = async () => {
+            await store.logout();
+            router.push('/');
+        };
+
         // Return these variables so they can be used in your component
         return {
             user,
@@ -171,7 +175,8 @@ export default {
             router,
             search,
             filteredResults,
-            searchPerformed
+            searchPerformed,
+            logout
         };
     }
 }

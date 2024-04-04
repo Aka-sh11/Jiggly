@@ -25,7 +25,8 @@ class Users(db.Model):
             'password': self.password,
             'email': self.email,
             'blacklisted': self.blacklisted,
-            'role_id': self.role_id,
+            # 'role_id': self.role_id,
+            'role': self.role.name
         }
     
 class Role(db.Model):

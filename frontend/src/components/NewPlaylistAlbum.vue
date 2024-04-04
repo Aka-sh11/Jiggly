@@ -115,23 +115,28 @@ import NavBar from '@/components/NavBar.vue'
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
+import { useAuthStore } from '@/stores/authStore'
+
 
 export default {
     components: {
         NavBar
     },
     setup() {
+        const store = useAuthStore()
+        const user_id = store.user.id
+        const accessToken = store.accessToken
         const Name = ref('')
         const router = useRouter()
         const route = useRoute()
         const heading = ref('')
         const placeholder = ref('')
         const Songs = ref([])
-        const user_id = 2
 
         const fetchSongs = async () => {
             try {
-                const response = await axios.get('http://127.0.0.1:5000/api/song')
+                const response = await axios.get('http://127.0.0.1:5000/api/song',
+                    { headers: { 'Authorization': `Bearer ${accessToken}` } })
                 Songs.value = response.data // Update the songs array with the fetched data
                 Songs.value.forEach(song => {
                     song.selected = false;
@@ -154,7 +159,8 @@ export default {
             if (route.name === 'new-playlist') {
                 try {
                     // Send the POST request to create the album
-                    await axios.post('http://127.0.0.1:5000/api/playlist', Data)
+                    await axios.post('http://127.0.0.1:5000/api/playlist', Data,
+                        { headers: { 'Authorization': `Bearer ${accessToken}` } })
 
                     // Redirect to the creator dashboard
                     router.push('/user/dashboard')
@@ -164,7 +170,8 @@ export default {
             } else if (route.name === 'new-album') {
                 try {
                     // Send the POST request to create the album
-                    await axios.post('http://127.0.0.1:5000/api/album', Data)
+                    await axios.post('http://127.0.0.1:5000/api/album', Data,
+                        { headers: { 'Authorization': `Bearer ${accessToken}` } })
 
                     // Redirect to the creator dashboard
                     router.push('/creator/dashboard')

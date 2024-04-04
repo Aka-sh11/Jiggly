@@ -132,7 +132,8 @@ rating_parser.add_argument(
 
 
 class UserAPI(Resource):
-    # @jwt_required()
+    @jwt_required()
+    @access(['Admin', 'Creator', 'User'])
     @marshal_with(user_fields)
     def get(self, user_id=None):
         if user_id:
@@ -161,8 +162,9 @@ class UserAPI(Resource):
         db.session.commit()
         return new_user, 200
 
-    # @jwt_required()
+    @jwt_required()
     @marshal_with(user_fields)
+    @access(['Admin', 'Creator', 'User'])
     def put(self, user_id):
         data = user_parser.parse_args()
         user = Users.query.get(user_id)
@@ -183,6 +185,7 @@ class UserAPI(Resource):
         return user
 
     @jwt_required()
+    @access(['Admin', 'Creator', 'User'])
     def delete(self, user_id):
         user = Users.query.get(user_id)
         if not user:
@@ -193,7 +196,8 @@ class UserAPI(Resource):
 
 
 class SongAPI(Resource):
-    # @jwt_required()
+    @jwt_required()
+    @access(['Admin', 'Creator', 'User'])
     @marshal_with(song_fields)
     def get(self, song_id=None):
         if song_id:
@@ -205,8 +209,8 @@ class SongAPI(Resource):
             songs = Songs.query.all()
             return songs
 
-    # @jwt_required()
-    # @access(["Creator"])
+    @jwt_required()
+    @access(['Creator'])
     @marshal_with(song_fields)
     def post(self):
         data = song_parser.parse_args()
@@ -225,8 +229,9 @@ class SongAPI(Resource):
         db.session.commit()
         return new_song, 200
 
-    # @jwt_required()
+    @jwt_required()
     @marshal_with(song_fields)
+    @access(['Creator'])
     def put(self, song_id):
         data = song_parser.parse_args()
         song = Songs.query.get(song_id)
@@ -250,8 +255,8 @@ class SongAPI(Resource):
         db.session.commit()
         return song
 
-    # @jwt_required()
-    # @access(["Creator", "Admin"])
+    @jwt_required()
+    @access(["Creator", "Admin"])
     def delete(self, song_id):
         song = Songs.query.get(song_id)
         if not song:
@@ -268,7 +273,8 @@ class SongAPI(Resource):
 
 
 class PlaylistAPI(Resource):
-    # @jwt_required()
+    @jwt_required()
+    @access(['User'])
     @marshal_with(playlist_fields)
     def get(self, id=None):
         if id is None:
@@ -292,7 +298,8 @@ class PlaylistAPI(Resource):
             songs = Songs_in_Playlist.query.filter_by(playlist_id=id).all()
             return {"id": playlist.id, "name": playlist.name, "user_id": playlist.user_id, "songs": [song.song_id for song in songs]}
 
-    # @jwt_required()
+    @jwt_required()
+    @access(['User'])
     @marshal_with(playlist_fields)
     def post(self):
         args = playlist_parser.parse_args()
@@ -328,7 +335,8 @@ class PlaylistAPI(Resource):
 
         return new_playlist, 200
 
-    # @jwt_required()
+    @jwt_required()
+    @access(['User'])
     @marshal_with(playlist_fields)
     def put(self, id):
         args = playlist_parser.parse_args()
@@ -364,7 +372,8 @@ class PlaylistAPI(Resource):
         db.session.commit()
         return playlist, 200
 
-    # @jwt_required()
+    @jwt_required()
+    @access(['User'])
     def delete(self, id):
         playlist = Playlist.query.get(id)
         if playlist is None:
@@ -376,7 +385,8 @@ class PlaylistAPI(Resource):
 
 
 class AlbumAPI(Resource):
-    # @jwt_required()
+    @jwt_required()
+    @access(['Admin', 'Creator', 'User'])
     @marshal_with(album_fields)
     def get(self, id=None):
         if id is None:
@@ -399,7 +409,8 @@ class AlbumAPI(Resource):
             songs = Songs_in_Album.query.filter_by(album_id=id).all()
             return {"id": album.id, "name": album.name, "user_id": album.user_id, "songs": [song.song_id for song in songs]}
 
-    # @jwt_required()
+    @jwt_required()
+    @access(['Creator'])
     @marshal_with(album_fields)
     def post(self):
         args = album_parser.parse_args()
@@ -436,8 +447,8 @@ class AlbumAPI(Resource):
         new_album.songs = song_ids
         return new_album, 200
 
-
-    # @jwt_required()
+    @jwt_required()
+    @access(['Creator'])
     @marshal_with(album_fields)
     def put(self, id):
         args = album_parser.parse_args()
@@ -471,7 +482,8 @@ class AlbumAPI(Resource):
         db.session.commit()
         return album, 200
 
-    # @jwt_required()
+    @jwt_required()
+    @access(['Admin', 'Creator'])
     def delete(self, id):
         album = Album.query.get(id)
         if album is None:
@@ -483,21 +495,22 @@ class AlbumAPI(Resource):
 
 
 class RatingAPI(Resource):
-    # @jwt_required()
+    @jwt_required()
+    @access(['Admin', 'Creator', 'User'])
     @marshal_with(rating_fields)
     def get(self, song_id=None, user_id=None):
         if song_id is None or user_id is None:
             ratings = Rating.query.all()
             return ratings
         else:
-            rating = Rating.query.filter_by(song_id=song_id, user_id=user_id).first()
+            rating = Rating.query.filter_by(
+                song_id=song_id, user_id=user_id).first()
             if not rating:
                 raise NotFound("Rating not found")
             return rating
 
-
-
-    # @jwt_required()
+    @jwt_required()
+    @access(['Admin', 'Creator', 'User'])
     @marshal_with(rating_fields)
     def post(self):
         args = rating_parser.parse_args()
@@ -513,7 +526,8 @@ class RatingAPI(Resource):
         db.session.commit()
         return new_rating, 200
 
-    # @jwt_required()
+    @jwt_required()
+    @access(['User'])
     @marshal_with(rating_fields)
     def put(self, rating_id):
         args = rating_parser.parse_args()
@@ -526,7 +540,8 @@ class RatingAPI(Resource):
         db.session.commit()
         return rating
 
-    # @jwt_required()
+    @jwt_required()
+    @access(['User'])
     def delete(self, rating_id):
         rating = Rating.query.get(rating_id)
         if not rating:
@@ -540,4 +555,5 @@ api.add_resource(UserAPI, '/user/<int:user_id>', '/user')
 api.add_resource(SongAPI, '/song/<int:song_id>', '/song')
 api.add_resource(PlaylistAPI, '/playlist/<int:id>', '/playlist')
 api.add_resource(AlbumAPI, '/album/<int:id>', '/album')
-api.add_resource(RatingAPI, '/ratings/<int:rating_id>', '/ratings', '/ratings/<int:song_id>/<int:user_id>')
+api.add_resource(RatingAPI, '/ratings/<int:rating_id>',
+                 '/ratings', '/ratings/<int:song_id>/<int:user_id>')

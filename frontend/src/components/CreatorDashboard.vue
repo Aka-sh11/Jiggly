@@ -199,6 +199,7 @@ h5 {
 <script>
 import axios from 'axios';
 import NavBar from './NavBar.vue'
+import { useAuthStore } from '@/stores/authStore'
 
 export default {
     name: 'CreatorDashboard',
@@ -206,11 +207,13 @@ export default {
         NavBar
     },
     data() {
+        const store = useAuthStore()
         return {
-            songs: [], // This will be set based on all songs
-            albums: [], // This should be set based on the logged in user's albums
-            average: 0, // This should be set based on the average rating
-            user_id: 2 // This should be set based on the logged in user
+            songs: [],
+            albums: [],
+            average: 0,
+            user_id: store.user.id,
+            accessToken: store.accessToken
         };
     },
     created() {
@@ -220,25 +223,37 @@ export default {
     },
     methods: {
         fetchSongs() {
-            axios.get('http://127.0.0.1:5000/api/song')
+            axios.get('http://127.0.0.1:5000/api/song', {
+                headers: {
+                    'Authorization': `Bearer ${this.accessToken}`
+                }
+            })
                 .then(response => {
-                    this.songs = response.data;
+                    this.songs = response.data.filter(song => song.user_id === this.user_id);
                 })
                 .catch(error => {
                     alert(error);
                 });
         },
         fetchAlbums() {
-            axios.get('http://127.0.0.1:5000/api/album')
+            axios.get('http://127.0.0.1:5000/api/album', {
+                headers: {
+                    'Authorization': `Bearer ${this.accessToken}`
+                }
+            })
                 .then(response => {
-                    this.albums = response.data;
+                    this.albums = response.data.filter(album => album.user_id === this.user_id);
                 })
                 .catch(error => {
                     alert(error);
                 });
         },
         deleteSong(id) {
-            axios.delete(`http://127.0.0.1:5000/api/song/${id}`)
+            axios.delete(`http://127.0.0.1:5000/api/song/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${this.accessToken}`
+                }
+            })
                 .then(() => {
                     this.fetchSongs(); // Refresh the list after deletion
                 })
@@ -247,7 +262,11 @@ export default {
                 });
         },
         deleteAlbum(id) {
-            axios.delete(`http://127.0.0.1:5000/api/album/${id}`)
+            axios.delete(`http://127.0.0.1:5000/api/album/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${this.accessToken}`
+                }
+            })
                 .then(() => {
                     this.fetchAlbums(); // Refresh the list after deletion
                 })
@@ -256,7 +275,11 @@ export default {
                 });
         },
         fetchAverageRating() {
-            axios.get('http://127.0.0.1:5000/api/ratings')
+            axios.get('http://127.0.0.1:5000/api/ratings', {
+                headers: {
+                    'Authorization': `Bearer ${this.accessToken}`
+                }
+            })
                 .then(response => {
                     // Filter the ratings for the given user_id
                     const userRatings = response.data.filter(rating => rating.user_id === this.user_id);
@@ -269,7 +292,6 @@ export default {
                     console.log(error);
                 });
         }
-
     }
 }
 </script>

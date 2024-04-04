@@ -38,19 +38,26 @@
 
 <script>
 import axios from 'axios';
+import { useAuthStore } from '@/stores/authStore'
 
 export default {
     name: 'PlaylistCard',
     props: ['playlist'],
     data() {
+        const store = useAuthStore();
         return {
-            Data: {}
+            Data: {},
+            user_id: store.user.id,
+            accessToken: store.accessToken
         };
     },
     methods: {
         async fetchData() {
             try {
-                const response = await axios.get('http://localhost:5000/api/playlist/' + this.playlist);
+                const response = await axios.get('http://localhost:5000/api/playlist/' + this.playlist,
+                    {
+                        headers: { 'Authorization': `Bearer ${this.accessToken}` }
+                    });
                 this.Data = response.data;
             } catch (error) {
                 console.error(error);

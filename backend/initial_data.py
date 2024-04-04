@@ -12,4 +12,8 @@ with app.app_context():
     try:
         db.session.commit()
     except:
-        pass    
+        pass
+
+
+# def initial_data():
+#     pass 

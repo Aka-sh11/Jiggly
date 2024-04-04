@@ -114,6 +114,7 @@ import NavBar from '@/components/NavBar.vue'
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
+import { useAuthStore } from '@/stores/authStore'
 
 export default {
     name: 'EditPlaylistAlbum',
@@ -121,18 +122,21 @@ export default {
         NavBar,
     },
     setup() {
+        const store = useAuthStore()
         const Name = ref('')
         const router = useRouter()
         const route = useRoute()
         const heading = ref('')
         const placeholder = ref('')
         const Songs = ref([])
-        const user_id = 2
+        const user_id = store.user.id
         const param = route.params.id
+        const accessToken = store.accessToken
 
         const fetchSongs = async () => {
             try {
-                const response = await axios.get('http://127.0.0.1:5000/api/song')
+                const response = await axios.get('http://127.0.0.1:5000/api/song',
+                    { headers: { 'Authorization': `Bearer ${accessToken}` } })
                 Songs.value = response.data // Update the songs array with the fetched data
                 Songs.value.forEach(song => {
                     song.selected = false;
@@ -156,7 +160,7 @@ export default {
                         name: Name.value,
                         user_id: user_id,
                         songs: selectedSongs
-                    })
+                    }, { headers:{ 'Authorization': `Bearer ${accessToken}`} })
                     console.log(response.data)
                 } catch (error) {
                     alert('Failed to edit playlist:', error)
@@ -168,7 +172,8 @@ export default {
                         name: Name.value,
                         user_id: user_id,
                         songs: selectedSongs
-                    })
+                    },
+                    { headers:{ 'Authorization': `Bearer ${accessToken}`} })
                     console.log(response.data)
                 } catch (error) {
                     alert('Failed to edit album:', error)
@@ -187,7 +192,8 @@ export default {
                 heading.value = 'Edit Playlist'
                 placeholder.value = 'Playlist Name'
                 try {
-                    const response = await axios.get(`http://127.0.0.1:5000/api/playlist/${param}`)
+                    const response = await axios.get(`http://127.0.0.1:5000/api/playlist/${param}`,
+                        { headers: { 'Authorization': `Bearer ${accessToken}` } })
                     const playlistSongs = response.data.songs
                     Name.value = response.data.name
                     Songs.value.forEach(song => {
@@ -202,7 +208,8 @@ export default {
                 heading.value = 'Edit Album'
                 placeholder.value = 'Album Name'
                 try {
-                    const response = await axios.get(`http://127.0.0.1:5000/api/album/${param}`)
+                    const response = await axios.get(`http://127.0.0.1:5000/api/album/${param}`,
+                        { headers: { 'Authorization': `Bearer ${accessToken}` } })
                     const albumSongs = response.data.songs
                     Name.value = response.data.name
                     Songs.value.forEach(song => {
