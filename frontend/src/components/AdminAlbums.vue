@@ -123,6 +123,7 @@ h6 {
 <script>
 import NavBar from './NavBar.vue'
 import axios from 'axios';
+import { useAuthStore } from '@/stores/authStore';
 
 export default {
     name: 'AdminAlbums',
@@ -130,8 +131,11 @@ export default {
         NavBar
     },
     data() {
+        const store = useAuthStore();
         return {
             albums: [],
+            user_id: store.user.id,
+            accessToken: store.accessToken
         }
     },
     created() {
@@ -139,7 +143,8 @@ export default {
     },
     methods: {
         fetchAlbums() {
-            axios.get('http://127.0.0.1:5000/api/album')
+            axios.get('http://127.0.0.1:5000/api/album',
+                { headers: { 'Authorization': `Bearer ${this.accessToken}` } })
                 .then(response => {
                     this.albums = response.data;
                 })
@@ -148,7 +153,8 @@ export default {
                 });
         },
         deleteAlbum(id) {
-            axios.delete(`http://127.0.0.1:5000/api/album/${id}`)
+            axios.delete(`http://127.0.0.1:5000/api/album/${id}`,
+                    { headers: { 'Authorization': `Bearer ${this.accessToken}` } })
                 .then(() => {
                     this.fetchAlbums(); // Refresh the list after deletion
                 })

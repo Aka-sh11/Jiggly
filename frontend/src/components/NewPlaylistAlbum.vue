@@ -176,7 +176,7 @@ export default {
                     // Redirect to the creator dashboard
                     router.push('/creator/dashboard')
                 } catch (error) {
-                    console.error('Failed to create album:', error)
+                    alert('Failed to create album:', error)
                 }
             }
         }

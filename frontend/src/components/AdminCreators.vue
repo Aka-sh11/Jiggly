@@ -139,6 +139,7 @@ h6 {
 <script>
 import NavBar from './NavBar.vue'
 import axios from 'axios';
+import { useAuthStore } from '@/stores/authStore';
 
 export default {
     name: 'AdminCreators',
@@ -146,7 +147,10 @@ export default {
         NavBar
     },
     data() {
+        const store = useAuthStore();
         return {
+            accessToken: store.accessToken,
+            user_id: store.user.id,
             creators: [],
             songs: [],
             albums: []
@@ -158,17 +162,21 @@ export default {
     methods: {
         async fetchData() {
             try {
-                const response = await axios.get('http://localhost:5000/api/user');
+                const response = await axios.get('http://localhost:5000/api/user',
+                    { headers: { 'Authorization': `Bearer ${this.accessToken}` } });
                 this.creators = response.data.filter(user => user.role === 'Creator');
 
-                const songsResponse = await axios.get('http://localhost:5000/creatorSongs');
+                const songsResponse = await axios.get('http://localhost:5000/creatorSongs',
+                    { headers: { 'Authorization': `Bearer ${this.accessToken}` } });
                 this.songs = songsResponse.data;
 
-                const albumsResponse = await axios.get('http://localhost:5000/creatorAlbums');
+                const albumsResponse = await axios.get('http://localhost:5000/creatorAlbums',
+                    { headers: { 'Authorization': `Bearer ${this.accessToken}` } });
                 this.albums = albumsResponse.data;
 
                 // Fetch ratings and calculate average for each creator
-                const ratingsResponse = await axios.get('http://localhost:5000/api/ratings');
+                const ratingsResponse = await axios.get('http://localhost:5000/api/ratings',
+                    { headers: { 'Authorization': `Bearer ${this.accessToken}` } });
                 this.creators.forEach(creator => {
                     const creatorRatings = ratingsResponse.data.filter(rating => rating.user_id === creator.id);
                     const sum = creatorRatings.reduce((a, b) => a + b.rating, 0);
@@ -183,7 +191,8 @@ export default {
             creator.blacklisted = !creator.blacklisted;
 
             axios.put(`http://localhost:5000/blacklist/${creator.id}`, {
-                blacklisted: creator.blacklisted
+                blacklisted: creator.blacklisted,
+            }, { headers: { 'Authorization': `Bearer ${this.accessToken}` }
             })
                 .then(response => {
                     console.log(response);

@@ -18,6 +18,7 @@
 import { Bar } from 'vue-chartjs'
 import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js'
 import axios from 'axios'
+import { useAuthStore } from '@/stores/authStore'
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 
@@ -25,8 +26,11 @@ export default {
     name: 'BarChart',
     components: { Bar },
     data() {
+        const store = useAuthStore()
         return {
             chartData: null,
+            user_id: store.user.id,
+            accessToken: store.accessToken,
             chartOptions: {
                 responsive: true
             },
@@ -46,8 +50,10 @@ export default {
         }
     },
     async mounted() {
-        let songs = await axios.get('http://127.0.0.1:5000/api/song')
-        let ratings = await axios.get('http://127.0.0.1:5000/api/ratings')
+        let songs = await axios.get('http://127.0.0.1:5000/api/song',
+            { headers: { 'Authorization': `Bearer ${this.accessToken}` } })
+        let ratings = await axios.get('http://127.0.0.1:5000/api/ratings',
+            { headers: { 'Authorization': `Bearer ${this.accessToken}` } })
         let songRatings = {}
 
         ratings.data.forEach(rating => {

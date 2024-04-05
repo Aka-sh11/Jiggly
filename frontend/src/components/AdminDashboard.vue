@@ -161,6 +161,7 @@ import axios from 'axios';
 import NavBar from './NavBar.vue'
 import PieChart from './PieChart.vue'
 import BarChart from './BarChart.vue'
+import { useAuthStore } from '@/stores/authStore';
 
 export default {
     name: 'AdminDashboard',
@@ -170,13 +171,16 @@ export default {
         BarChart
     },
     data() {
+        const store = useAuthStore();
         return {
             songData: null,
             userData: null,
             albumData: null,
             genres: null,
             normalUser: null,
-            creator: null
+            creator: null,
+            user_id: store.user.id,
+            accessToken: store.accessToken
         }
     },
     created() {
@@ -185,16 +189,19 @@ export default {
     methods: {
         async fetchData() {
             try {
-                const songResponse = await axios.get('http://127.0.0.1:5000/api/song');
+                const songResponse = await axios.get('http://127.0.0.1:5000/api/song',
+                    { headers: { 'Authorization': `Bearer ${this.accessToken}` } });
                 this.songData = songResponse.data;
                 this.genres = [...new Set(this.songData.map(song => song.genre))];
 
-                const userResponse = await axios.get('http://127.0.0.1:5000/api/user');
+                const userResponse = await axios.get('http://127.0.0.1:5000/api/user',
+                    { headers: { 'Authorization': `Bearer ${this.accessToken}` } });
                 this.userData = userResponse.data;
                 this.normalUser = this.userData.filter(user => user.role === 'User')
                 this.creator = this.userData.filter(user => user.role === 'Creator')
 
-                const albumResponse = await axios.get('http://127.0.0.1:5000/api/album');
+                const albumResponse = await axios.get('http://127.0.0.1:5000/api/album',
+                    { headers: { 'Authorization': `Bearer ${this.accessToken}` } });
                 this.albumData = albumResponse.data;
             } catch (error) {
                 console.error(error);

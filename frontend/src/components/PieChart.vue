@@ -16,6 +16,7 @@
 import { Pie } from 'vue-chartjs'
 import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement, CategoryScale, LinearScale } from 'chart.js'
 import axios from 'axios'
+import { useAuthStore } from '@/stores/authStore'
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale, LinearScale)
 
@@ -23,7 +24,10 @@ export default {
     name: 'PieChart',
     components: { Pie },
     data() {
+        const store = useAuthStore()
         return {
+            user_id: store.user.id,
+            accessToken: store.accessToken,
             chartData: null,
             chartOptions: {
                 responsive: true
@@ -39,7 +43,8 @@ export default {
         }
     },
     async created() {
-        const response = await axios.get('http://127.0.0.1:5000/api/song')
+        const response = await axios.get('http://127.0.0.1:5000/api/song',
+            { headers: { 'Authorization': `Bearer ${this.accessToken}` } })
         const songs = response.data
         const genreCounts = songs.reduce((acc, song) => {
             acc[song.genre] = (acc[song.genre] || 0) + 1

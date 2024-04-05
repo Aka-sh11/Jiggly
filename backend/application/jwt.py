@@ -17,7 +17,7 @@ def access(roles: []):  # type: ignore
             user = get_jwt_identity()
             current_user = Users.query.filter_by(id=user).first()
             if current_user.role.name not in roles or current_user.blacklisted:
-                return {"message":"Unauthorized Access"}, 403
+                return {"error":"Unauthorized Access"}, 403
             return f(*args, **kwargs)
         return decorator_function
     return decorator

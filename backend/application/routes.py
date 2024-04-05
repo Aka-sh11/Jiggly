@@ -56,6 +56,7 @@ def search():
 
 @app.route('/creatorSongs', methods=['GET'])
 @jwt_required()
+@access('Admin')
 def get_songs():
     songs = db.session.query(Songs).options(
         joinedload(Songs.uploader).joinedload(Users.role)).all()
@@ -66,6 +67,7 @@ def get_songs():
 
 @app.route('/creatorAlbums', methods=['GET'])
 @jwt_required()
+@access('Admin')
 def get_albumss():
     albums = db.session.query(Album).options(
         joinedload(Album.creator).joinedload(Users.role)).all()
@@ -76,6 +78,7 @@ def get_albumss():
 
 @app.route('/blacklist/<int:id>', methods=['PUT'])
 @jwt_required()
+@access('Admin')
 def blacklist_user(id):
     user = Users.query.get(id)
     if user is None:

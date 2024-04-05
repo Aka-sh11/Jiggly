@@ -125,6 +125,7 @@ h6 {
 <script>
 import NavBar from './NavBar.vue'
 import axios from 'axios';
+import { useAuthStore } from '@/stores/authStore';
 
 export default {
     name: 'AdminTracks',
@@ -132,15 +133,19 @@ export default {
         NavBar
     },
     data() {
+        const store = useAuthStore();
         return {
             genres: [],
-            songs: []
+            songs: [],
+            user_id: store.user.id,
+            accessToken: store.accessToken
         }
     },
     methods: {
         async loadSongs() {
             try {
-                const response = await axios.get('http://127.0.0.1:5000/api/song');
+                const response = await axios.get('http://127.0.0.1:5000/api/song',
+                    { headers: { 'Authorization': `Bearer ${this.accessToken}` } });
                 this.songs = response.data; // Update songs data
                 const genres = new Set(this.songs.map(song => song.genre));
                 this.genres = Array.from(genres);
@@ -149,7 +154,8 @@ export default {
             }
         },
         deleteSong(id) {
-            axios.delete(`http://127.0.0.1:5000/api/song/${id}`)
+            axios.delete(`http://127.0.0.1:5000/api/song/${id}`,
+                    { headers: { 'Authorization': `Bearer ${this.accessToken}` } })
                 .then(() => {
                     this.loadSongs(); // Refresh the list after deletion
                 })

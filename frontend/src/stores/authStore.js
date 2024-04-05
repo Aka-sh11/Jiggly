@@ -7,7 +7,6 @@ export const useAuthStore = defineStore({
     user: null,
     accessToken: localStorage.getItem('accessToken'),
     isLoggedIn: false,
-    // role: null,
   }),
   actions: {
     async login(username, password) {
@@ -16,7 +15,6 @@ export const useAuthStore = defineStore({
         if (response.status === 200) {
           this.user = response.data.user;
           this.accessToken = response.data.access_token;
-        //   this.role = response.data.user.role;
           localStorage.setItem('accessToken', this.accessToken);
           this.isLoggedIn = true;
         }
@@ -34,7 +32,6 @@ export const useAuthStore = defineStore({
         if (response.status === 200) {
           this.user = null;
           this.accessToken = null;
-          // this.role = null;
           localStorage.removeItem('accessToken');
           this.isLoggedIn = false;
         }
@@ -43,21 +40,24 @@ export const useAuthStore = defineStore({
       }
     },
     async fetchUserInfo() {
-      try {
-        const response = await axios.get('http://127.0.0.1:5000/fetchuserinfo', {
-          headers: {
-            'Authorization': `Bearer ${this.accessToken}`
+      if (this.accessToken) {
+        try {
+          const response = await axios.get('http://127.0.0.1:5000/fetchuserinfo', {
+            headers: {
+              'Authorization': `Bearer ${this.accessToken}`
+            }
+          });
+          if (response.status === 200) {
+            this.user = response.data.user;
+            this.isLoggedIn = true;
           }
-        });
-        if (response.status === 200) {
-          this.user = response.data.user;
-        //   this.role = response.data.user.role;
+        } catch (error) {
+          console.error('Error fetching user info:', error);
         }
-      } catch (error) {
-        console.error('Error fetching user info:', error);
       }
     },
   },
-});
+  },
+);
 
 
