@@ -99,6 +99,10 @@ p {
 </style>
 
 <script>
+// import { useAuthStore } from '@/stores/authStore';
+
+// const authStore = useAuthStore();
+// authStore.fetchUserInfo();
 export default {
     name: 'JigglyCard',
 }

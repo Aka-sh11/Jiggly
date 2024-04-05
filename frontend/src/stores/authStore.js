@@ -8,6 +8,14 @@ export const useAuthStore = defineStore({
     accessToken: localStorage.getItem('accessToken'),
     isLoggedIn: false,
   }),
+  getters: {
+    isUserLoggedIn() {
+      return this.isLoggedIn;
+    },
+    userInfo(){
+      return this.user;
+    }
+  },
   actions: {
     async login(username, password) {
       try {
