@@ -9,7 +9,9 @@
                 <div class="overflow-auto">
                     <div v-for="creator in creators" :key="creator.id" class="box-s">
                         <div class="header">
-                            <h6>{{ creator.username }}</h6>
+                            <h6><b>{{ creator.username }}</b>&nbsp;(<a :href="'mailto:' + creator.email">{{ creator.email
+                                    }}</a>)</h6>
+
                             <ul class="nav">
                                 <li class="nav-item">
                                     <div class=" btn btn-info btn-sm">
@@ -21,12 +23,15 @@
                                     <div class=" btn btn-info btn-sm">
                                         Avg Rating: {{ creator.avgRating }}
                                     </div>
+                                    <div class=" btn btn-info btn-sm">
+                                        Likes: {{ creator.likes }}
+                                    </div>
                                 </li>
                                 <li class="nav-item">
                                     <button class="btn btn-info btn-sm"
                                         :style="{ background: creator.blacklisted ? 'rgb(240 71 71)' : '#79eb79' }"
                                         @click="toggleBlacklist(creator)">{{ creator.blacklisted ? 'Blacklist' :
-                        'Whitelist'
+                                        'Whitelist'
                                         }}</button>
                                 </li>
                             </ul>
@@ -40,6 +45,12 @@
 </template>
 
 <style scoped>
+b{
+    color: chocolate;
+    font-size: x-large;
+    padding-left: 25px;
+
+}
 button {
     width: 100px;
 }
@@ -133,6 +144,7 @@ h6 {
     justify-content: center;
     align-items: center;
     padding-top: 8px;
+    /* padding-left: 25px; */
 }
 </style>
 
@@ -169,6 +181,9 @@ export default {
                 const songsResponse = await axios.get('http://localhost:5000/creatorSongs',
                     { headers: { 'Authorization': `Bearer ${this.accessToken}` } });
                 this.songs = songsResponse.data;
+                // let totalLikes = this.songs.reduce((sum, song) => sum + song.likes, 0);
+                // this.likes = totalLikes;
+                
 
                 const albumsResponse = await axios.get('http://localhost:5000/creatorAlbums',
                     { headers: { 'Authorization': `Bearer ${this.accessToken}` } });
@@ -202,7 +217,9 @@ export default {
                 });
         },
         getCreatorSongs(creator) {
-            return this.songs.filter(song => song.user_id === creator.id);
+            const creatorSongs = this.songs.filter(song => song.user_id === creator.id);
+            creator.likes = creatorSongs.reduce((sum, song) => sum + song.likes, 0);
+            return creatorSongs;
         },
         getCreatorAlbums(creator) {
             return this.albums.filter(album => album.user_id === creator.id);
