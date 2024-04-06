@@ -19,6 +19,11 @@
                                         Lyrics</router-link>
                                 </li>
                                 <li class="nav-item">
+                                    <button @click="removeFlag(song.id)"
+                                        :style="{ backgroundColor: song.flags > 0 ? '#ec6f6f' : '#88d488' }"
+                                        class="btn btn-sm">Flags: {{ song.flags }}</button>
+                                </li>
+                                <li class="nav-item">
                                     <button @click="deleteSong(song.id)" class="btn btn-info btn-sm">Delete</button>
                                 </li>
                             </ul>
@@ -158,6 +163,16 @@ export default {
                     { headers: { 'Authorization': `Bearer ${this.accessToken}` } })
                 .then(() => {
                     this.loadSongs(); // Refresh the list after deletion
+                })
+                .catch(error => {
+                    alert(error);
+                });
+        },
+        removeFlag(id) {
+            axios.post(`http://127.0.0.1:5000/remove_flag/${id}`,
+                {}, { headers: { 'Authorization': `Bearer ${this.accessToken}` } })
+                .then(() => {
+                    this.loadSongs(); // Refresh the list after removing flag
                 })
                 .catch(error => {
                     alert(error);

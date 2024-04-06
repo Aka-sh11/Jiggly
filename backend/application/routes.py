@@ -1,7 +1,7 @@
 from flask import current_app as app, jsonify, make_response, request
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, unset_jwt_cookies, get_jwt_identity
 from .jwt import access
-from .models import Users, Songs, Album, db
+from .models import Users, Songs, Album, db, Rating
 from werkzeug.security import check_password_hash
 from sqlalchemy import or_
 from sqlalchemy.orm import joinedload
@@ -89,3 +89,61 @@ def blacklist_user(id):
         db.session.commit()
 
     return jsonify({'message': 'User updated successfully'}), 200
+
+
+@app.route('/like_song/<int:song_id>', methods=['POST'])
+@jwt_required()
+@access('User')
+def like(song_id):
+    song = Songs.query.get(song_id)
+    if not song:
+        return jsonify({'error': 'Song not found.'}), 404
+    song.likes += 1
+    db.session.commit()
+    return jsonify({'message': 'Song liked successfully.'}), 200
+
+@app.route('/dislike_song/<int:song_id>', methods=['POST'])
+@jwt_required()
+@access('User')
+def dislike(song_id):
+    song = Songs.query.get(song_id)
+    if not song:
+        return jsonify({'error': 'Song not found.'}), 404
+    song.likes -= 1
+    db.session.commit()
+    return jsonify({'message': 'Song disliked successfully.'}), 200
+
+@app.route('/flag_song/<int:song_id>', methods=['POST'])
+@jwt_required()
+@access('User')
+def flag(song_id):
+    song = Songs.query.get(song_id)
+    if not song:
+        return jsonify({'error': 'Song not found.'}), 404
+    song.flags += 1
+    db.session.commit()
+    return jsonify({'message': 'Song flagged successfully.'}), 200
+
+
+@app.route('/unflag_song/<int:song_id>', methods=['POST'])
+@jwt_required()
+@access('User')
+def unflag(song_id):
+    song = Songs.query.get(song_id)
+    if not song:
+        return jsonify({'error': 'Song not found.'}), 404
+    song.flags -= 1
+    db.session.commit()
+    return jsonify({'message': 'Song unflagged successfully.'}), 200
+
+
+@app.route('/remove_flag/<int:song_id>', methods=['POST'])
+@jwt_required()
+@access('Admin')
+def remove_flag(song_id):
+    song = Songs.query.get(song_id)
+    if not song:
+        return jsonify({'error': 'Song not found.'}), 404
+    song.flags = 0
+    db.session.commit()
+    return jsonify({'message': 'Flag removed successfully.'}), 200

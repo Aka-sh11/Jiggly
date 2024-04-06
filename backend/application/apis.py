@@ -58,6 +58,8 @@ song_fields = {
     'lyrics': fields.String,
     'genre': fields.String,
     'filename': fields.String,
+    'likes': fields.Integer,
+    'flags': fields.Integer,
     'user_id': fields.Integer
 }
 
@@ -252,6 +254,8 @@ class SongAPI(Resource):
         song.genre = data['genre']
         song.filename = data['filename']
         song.user_id = data['user_id']
+        # song.likes = data['likes']
+        # song.flags = data['flags']
         db.session.commit()
         return song
 

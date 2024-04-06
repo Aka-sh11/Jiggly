@@ -5,6 +5,7 @@ from config import DevelopmentConfig
 from application.apis import api
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
+from initial_data import initial_data
 
 
 def create_app():
@@ -40,4 +41,5 @@ def create_app():
 app = create_app()
 
 if __name__ == '__main__':
+    initial_data()
     app.run(debug=True)

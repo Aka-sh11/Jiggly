@@ -24,8 +24,8 @@
                 </div>
                 <br />
                 <div class="emoji" v-for="( Icon, index ) in  reactionIcons " :key="index">
-                    <button @click="triggerAnimation(index)" :class="{ pop: Icon.pop, float: Icon.float }"
-                        style="font-size: 1.2rem;">
+                    <button @click="triggerAnimation(index), likeSong(index)" :class="{ pop: Icon.pop, float: Icon.float }"
+                        style="font-size: 1.3rem;">
                         {{ Icon.icon }}
                     </button>
                 </div>
@@ -145,7 +145,7 @@ button.float {
 
 <script>
 import NavBar from '@/components/NavBar.vue'
-import { ref } from 'vue';
+// import { ref } from 'vue';
 import axios from 'axios';
 import { useAuthStore } from '@/stores/authStore'
 
@@ -162,7 +162,11 @@ export default {
             user_id: store.user.id,
             ratingExists: false,
             ratingId: null,
-            accessToken: store.accessToken
+            accessToken: store.accessToken,
+            reactionIcons: [
+                { icon: '👍', pop: false, float: false },
+                { icon: '🏳️', pop: false, float: false}
+            ],
             // newRating: null
         };
     },
@@ -219,9 +223,48 @@ export default {
                         console.log(error);
                     });
             }
+        },
+        triggerAnimation(index) {
+            this.reactionIcons[index].pop = true;
+            this.reactionIcons[index].float = true;
+            setTimeout(() => {
+                this.reactionIcons[index].pop = false;
+                this.reactionIcons[index].float = false;
+            }, 500); // Reset after 500ms
+        },
+        likeSong(index) {
+            const song_id = this.$route.params.id;
+            let route = '';
+            if (this.reactionIcons[index].icon === '👍') {
+                route = `http://127.0.0.1:5000/like_song/${song_id}`;
+            } else if (this.reactionIcons[index].icon === '👎') {
+                route = `http://127.0.0.1:5000/dislike_song/${song_id}`;
+            } else if (this.reactionIcons[index].icon === '🏳️') {
+                route = `http://127.0.0.1:5000/flag_song/${song_id}`;
+            } else if (this.reactionIcons[index].icon === '🚩') {
+                route = `http://127.0.0.1:5000/unflag_song/${song_id}`;
+            }
+            axios.post(route,
+                {},
+                { headers: { 'Authorization': `Bearer ${this.accessToken}` } })
+                .then(response => {
+                    console.log('Action successful');
+                    if (this.reactionIcons[index].icon === '👍') {
+                        this.reactionIcons[index].icon = '👎';
+                    } else if (this.reactionIcons[index].icon === '👎') {
+                        this.reactionIcons[index].icon = '👍';
+                    } else if (this.reactionIcons[index].icon === '🏳️') {
+                        this.reactionIcons[index].icon = '🚩';
+                    } else if (this.reactionIcons[index].icon === '🚩') {
+                        this.reactionIcons[index].icon = '🏳️';
+                    }
+                })
+                .catch(error => {
+                    console.log(error);
+                });
         }
 
-    },
+        },
     mounted() {
         const song_id = this.$route.params.id;
         this.fetchSongDetails(song_id);
@@ -243,27 +286,7 @@ export default {
         },
         '$route': 'fetchSongDetails'
     },
-    setup() {
-        const reactionIcons = ref([
-            { icon: '👎', pop: false, float: false },
-            { icon: '❤️', pop: false, float: false },
-            { icon: '🔥', pop: false, floa: false },
-
-        ]);
-
-        const triggerAnimation = (index) => {
-            reactionIcons.value[index].pop = true;
-            reactionIcons.value[index].float = true;
-            setTimeout(() => {
-                reactionIcons.value[index].pop = false;
-                reactionIcons.value[index].float = false;
-            }, 500); // Reset after 500ms
-        };
-
-        return {
-            reactionIcons,
-            triggerAnimation,
-        };
-    },
 };
 </script>
+
+

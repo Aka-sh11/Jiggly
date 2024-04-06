@@ -20,6 +20,10 @@ s<template>
                         </em>
                     </div>
                     <div class="col">
+                        <em>Total Likes</em><br /><br />
+                        <p>{{ sumLikes }}</p>
+                    </div>
+                    <div class="col">
                         <em>Total Albums</em><br /><br />
                         <p>{{ albums.length }}</p>
                     </div>
@@ -213,7 +217,8 @@ export default {
             albums: [],
             average: 0,
             user_id: store.user.id,
-            accessToken: store.accessToken
+            accessToken: store.accessToken,
+            sumLikes: 0
         };
     },
     created() {
@@ -230,6 +235,7 @@ export default {
             })
                 .then(response => {
                     this.songs = response.data.filter(song => song.user_id === this.user_id);
+                    this.sumLikes = this.songs.reduce((sum, song) => sum + song.likes, 0);
                 })
                 .catch(error => {
                     alert(error);

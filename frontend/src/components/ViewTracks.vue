@@ -2,8 +2,15 @@
     <NavBar />
     <div v-if="$route.name === 'all-songs'" class="Songs">
         <h2>All Songs</h2>
+        <div class="filter">
+            <label for="rating-filter">Filter by Rating:</label>
+            <select v-model="filterRating" id="rating-filter">
+                <option value="0">All</option>
+                <option v-for="n in 5" :key="n" :value="n">{{ n }}</option>
+            </select>
+        </div>
         <div class="col">
-            <SongCard v-for="song in songs.sort((a, b) => a.title.localeCompare(b.title)) " :key="song"
+            <SongCard v-for="song in filteredSongs.sort((a, b) => a.title.localeCompare(b.title))" :key="song.id"
                 :song="song.id" />
         </div>
     </div>
@@ -31,6 +38,12 @@
 </template>
 
 <style scoped>
+.filter {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+    margin-right: 20px;
+}
 .col {
     display: flex;
     flex-wrap: wrap;
@@ -77,7 +90,17 @@ export default {
             album: [], // Initialize with an empty object
             user_id: store.user.id,
             accessToken: store.accessToken,
+            filterRating: 0,
         };
+    },
+    computed: {
+        filteredSongs() {
+            if (this.filterRating === 0) {
+                return this.songs;
+            } else {
+                return this.songs.filter(song => song.rating === this.filterRating);
+            }
+        }
     },
     methods: {
         fetchData() {
@@ -86,11 +109,23 @@ export default {
                 axios.get('http://127.0.0.1:5000/api/song',
                     { headers: { 'Authorization': `Bearer ${this.accessToken}` } })
                     .then(response => {
-                        this.songs = response.data; // Update songs data
+                        this.songs = response.data.map(song => {
+                            // Fetch rating for each song
+                            axios.get(`http://127.0.0.1:5000/api/ratings/${song.id}/${this.user_id}`,
+                                { headers: { 'Authorization': `Bearer ${this.accessToken}` } })
+                                .then(ratingResponse => {
+                                    song.rating = ratingResponse.data.rating; // Update song rating
+                                })
+                                .catch(error => {
+                                    console.error(error); // Log error to console
+                                });
+                            return song;
+                        });
                     })
                     .catch(error => {
                         console.error(error); // Log error to console
                     });
+
             } else if (this.$route.name === 'playlist') {
                 const playlistId = this.$route.params.id;
                 axios.get(`http://127.0.0.1:5000/api/playlist/${playlistId}`,
@@ -113,6 +148,13 @@ export default {
                     .catch(error => {
                         console.error(error); // Log error to console
                     });
+            }
+        }
+    },
+    watch: {
+        filterRating(newVal) {
+            if (newVal === 0) {
+                this.fetchData();
             }
         }
     },

@@ -16,9 +16,11 @@
                         </em>
                     </div>
                     <div class="col">
-                        <h5>Genre</h5><br />
+                        <router-link to="/admin/creators">
+                            <h5>Creators</h5>
+                        </router-link><br />
                         <em>
-                            <p>{{ genres.length }}</p>
+                            <p>{{ creator.length }}</p>
                         </em>
                     </div>
                     <div class="col">
@@ -30,17 +32,21 @@
                 </div>
                 <div class="row-fluid">
                     <div class="col-fluid">
+                        <h4>Total Likes</h4> <br />
+                        <em>
+                            <p>{{ sumLikes }} </p>
+                        </em>
+                    </div>
+                    <div class="col-fluid">
                         <h4>Normal Users</h4> <br />
                         <em>
                             <p>{{ normalUser.length }} </p>
                         </em>
                     </div>
                     <div class="col-fluid">
-                        <router-link to="/admin/creators">
-                            <h4>Creators</h4>
-                        </router-link> <br />
+                        <h4>Total Genres</h4> <br />
                         <em>
-                            <p>{{ creator.length }}</p>
+                            <p>{{ genres.length }}</p>
                         </em>
                     </div>
                 </div>
@@ -114,6 +120,7 @@ a:hover {
 .row-fluid {
     display: flex;
     margin-bottom: 20px;
+    justify-content: space-between;
 }
 
 .col {
@@ -180,7 +187,8 @@ export default {
             normalUser: null,
             creator: null,
             user_id: store.user.id,
-            accessToken: store.accessToken
+            accessToken: store.accessToken,
+            sumLikes: 0
         }
     },
     created() {
@@ -192,6 +200,7 @@ export default {
                 const songResponse = await axios.get('http://127.0.0.1:5000/api/song',
                     { headers: { 'Authorization': `Bearer ${this.accessToken}` } });
                 this.songData = songResponse.data;
+                this.sumLikes = this.songData.reduce((sum, song) => sum + song.likes, 0);
                 this.genres = [...new Set(this.songData.map(song => song.genre))];
 
                 const userResponse = await axios.get('http://127.0.0.1:5000/api/user',

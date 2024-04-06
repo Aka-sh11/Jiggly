@@ -45,6 +45,8 @@ class Songs(db.Model):
     lyrics = db.Column(db.String, nullable=False)
     genre = db.Column(db.String, nullable=False)
     filename = db.Column(db.String, nullable=False)
+    likes = db.Column(db.Integer, default=0)
+    flags = db.Column(db.Integer, default=0)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     __table_args__ = (UniqueConstraint('title', 'singer', name='unique_singer_title'),)
     
@@ -57,7 +59,9 @@ class Songs(db.Model):
             'lyrics': self.lyrics,
             'genre': self.genre,
             'filename': self.filename,
-            'user_id': self.user_id
+            'user_id': self.user_id,
+            'likes': self.likes,
+            'flags': self.flags
         }
   
     
@@ -107,3 +111,4 @@ class Rating(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     song_id = db.Column(db.Integer, db.ForeignKey('songs.id'), nullable=False)
     song = db.relationship('Songs', backref='ratings', lazy=True)
+    
