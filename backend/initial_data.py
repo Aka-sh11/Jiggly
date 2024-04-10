@@ -36,8 +36,8 @@ def initial_data():
 
         user_in_db = Users.query.filter_by(username='akasharma').first()
         if not user_in_db:
-            hashed_password = generate_password_hash('mad2jan24')
-            user = Users(username='akasharma', password=hashed_password, email='22f2000700@ds.study.iitm.ac.in', role_id=1)
+            hashed_password = generate_password_hash('22f2000700')
+            user = Users(username='akasharma', password=hashed_password, email='admin@jiggly.com', role_id=1)
             db.session.add(user)
         
         try:

@@ -6,7 +6,9 @@ from application.apis import api
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from initial_data import initial_data
-
+from application.worker import celery_init_app
+from celery.schedules import crontab
+from application.tasks import daily_reminder
 
 def create_app():
     app = Flask(__name__)
@@ -39,6 +41,12 @@ def create_app():
 
 
 app = create_app()
+celery_app = celery_init_app(app)
+
+@celery_app.on_after_configure.connect
+def send_email(sender, **kwargs):
+    sender.add_periodic_task(crontab(minute=30, hour=17),
+                             daily_reminder.s(),)
 
 if __name__ == '__main__':
     initial_data()

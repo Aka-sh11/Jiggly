@@ -6,6 +6,7 @@ from .models import db, Users, Role, Songs, Playlist, Songs_in_Playlist, Album, 
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from .jwt import access
 import os
+from datetime import datetime, timezone
 
 api = Api(prefix='/api')
 
@@ -47,7 +48,8 @@ user_fields = {
     'password': fields.String,
     'email': fields.String,
     'blacklisted': fields.Boolean,
-    'role': fields.String(attribute='role.name')
+    'role': fields.String(attribute='role.name'),
+    'last_visited': fields.DateTime
 }
 
 song_fields = {
@@ -159,7 +161,8 @@ class UserAPI(Resource):
             raise NotFound("Role not found")
         hashed_password = generate_password_hash(data['password'])
         new_user = Users(
-            username=data['username'], password=hashed_password, email=data['email'], role_id=role.id)
+            username=data['username'], password=hashed_password, email=data['email'],
+            role_id=role.id, last_visited=datetime.now(timezone.utc))
         db.session.add(new_user)
         db.session.commit()
         return new_user, 200

@@ -6,6 +6,7 @@ from werkzeug.security import check_password_hash
 from sqlalchemy import or_
 from sqlalchemy.orm import joinedload
 from .jwt import access
+from datetime import datetime, timezone
 
 
 @app.route('/login', methods=['POST'])
@@ -18,6 +19,8 @@ def login():
     if not check_password_hash(user.password, password):
         return make_response('Invalid Password', 400)
 
+    user.last_visited = datetime.now(timezone.utc)
+    db.session.commit()
     access_token = create_access_token(identity=user)
     refresh_token = create_refresh_token(identity=user)
     if not access_token or not refresh_token:
@@ -29,6 +32,14 @@ def login():
 @app.route('/logout', methods=['POST'])
 @jwt_required()
 def logout():
+    # Get the current user
+    current_user = get_jwt_identity()
+    user = Users.query.filter_by(id=current_user).first()
+
+    # Update last_visited field with current time
+    user.last_visited = datetime.now(timezone.utc)
+    db.session.commit()
+    
     response = jsonify({"message": "Logout Successful"})
     unset_jwt_cookies(response)
     return response, 200

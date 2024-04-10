@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import UniqueConstraint
+from datetime import datetime, timezone
 
 db = SQLAlchemy()
 
@@ -16,6 +17,7 @@ class Users(db.Model):
     playlists = db.relationship('Playlist', backref='user', lazy=True)
     albums = db.relationship('Album', backref='creator', lazy=True)
     ratings = db.relationship('Rating', backref='user', lazy=True)
+    last_visited = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     # roles = db.relationship('Role', backref='user', lazy=True)
     
     def to_dict(self):
