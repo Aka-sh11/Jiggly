@@ -8,7 +8,7 @@ from flask_cors import CORS
 from initial_data import initial_data
 from application.worker import celery_init_app
 from celery.schedules import crontab
-from application.tasks import daily_reminder
+from application.tasks import daily_reminder, monthly_report
 
 def create_app():
     app = Flask(__name__)
@@ -47,6 +47,8 @@ celery_app = celery_init_app(app)
 def send_email(sender, **kwargs):
     sender.add_periodic_task(crontab(minute=30, hour=17),
                              daily_reminder.s(),)
+    sender.add_periodic_task(crontab(minute=0, hour=10, day_of_month=1),
+                             monthly_report.s(),)
 
 if __name__ == '__main__':
     initial_data()

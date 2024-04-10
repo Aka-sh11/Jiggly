@@ -28,7 +28,8 @@ class Users(db.Model):
             'email': self.email,
             'blacklisted': self.blacklisted,
             # 'role_id': self.role_id,
-            'role': self.role.name
+            'role': self.role.name,
+            'last_visited': self.last_visited.strftime('%Y-%m-%d %H:%M:%S')
         }
     
 class Role(db.Model):

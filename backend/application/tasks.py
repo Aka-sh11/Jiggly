@@ -1,7 +1,9 @@
+from sqlalchemy import func
 from celery import shared_task
-from .models import Users, Role
+from .models import Users, Role, Songs, Album
 from datetime import datetime, timedelta, timezone
 from jinja2 import Template
+
 
 from smtplib import SMTP
 from email.mime.multipart import MIMEMultipart
@@ -45,7 +47,7 @@ def daily_reminder():
         Best Regards,
     </p>
     <p>
-        Jiggly Team
+        Jiggly App Team
     </p>
         <small>Feel the Music, Feel the Joy! </small>
     '''
@@ -57,5 +59,79 @@ def daily_reminder():
         subject = "We miss you " + user.username.capitalize() + "!"
         send_email(user.email, subject, template.render(name=user.username))
 
+
+@shared_task(ignore_result=True)
+def monthly_report():
+    template = '''
+    <style>
+      table {
+        width: 60%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        padding: 5px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+      th {
+        background-color: #9ac5e7;
+      }
+      h3 {
+        text-align: center;
+      }
+    </style>
+    <h3>Your Monthly Report : Jiggly App</h3>
+    Total Songs: {{ total_songs }} <br />
+    Total Albums: {{ total_albums }} <br />
+    Total Likes: {{ total_likes }} <br />
+    Average Rating: {{ avg_rating }}
+    <br /><br />
+    <table border="1">
+      <thead>
+        <tr>
+          <th>Song</th>
+          <th>Genre</th>
+          <th>Likes</th>
+          <th>Flags</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for song in songs %}
+        <tr>
+          <td>{{ song['title'] }}</td>
+          <td>{{ song['genre'] }}</td>
+          <td>{{ song['likes'] }}</td>
+          <td>{{ song['flags'] }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <br />
+    <p>Thank you for using Jiggly App!</p>
+    <p>
+      Best Regards, <br />
+      Jiggly App Team
+    </p>
+    <p>Disclaimer: This is an auto-generated email. Please do not reply.</p>
+    '''
+    template = Template(template)
+    creators = Users.query.filter(Users.role.has(Role.name == 'Creator')).all()
+    for creator in creators:
+        songs = Songs.query.filter(Songs.user_id == creator.id).all()
+        albums = Album.query.filter(Album.user_id == creator.id).all()
+        
+        total_songs = len(songs)
+        total_albums = len(albums)
+        total_likes = sum([song.likes for song in songs])
+        total_ratings = sum([rating.rating for song in songs for rating in song.ratings])
+        avg_rating = round(total_ratings / total_songs if total_songs > 0 else 0, 2)
+        subject = "Monthly Report"
+        content = template.render(songs=songs, total_songs=total_songs, total_albums=total_albums,
+                                  total_likes=total_likes, avg_rating=avg_rating)
+        send_email(creator.email, subject, content)
+        
+        
+        
     
     
