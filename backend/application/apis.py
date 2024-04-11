@@ -7,6 +7,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from .jwt import access
 import os
 from datetime import datetime, timezone
+from .cache import cache
 
 api = Api(prefix='/api')
 
@@ -138,6 +139,7 @@ rating_parser.add_argument(
 class UserAPI(Resource):
     @jwt_required()
     @access(['Admin', 'Creator', 'User'])
+    @cache.cached(timeout=30)
     @marshal_with(user_fields)
     def get(self, user_id=None):
         if user_id:
@@ -534,7 +536,7 @@ class RatingAPI(Resource):
         return new_rating, 200
 
     @jwt_required()
-    @access(['User'])
+    @access(['User', 'Creator'])
     @marshal_with(rating_fields)
     def put(self, rating_id):
         args = rating_parser.parse_args()

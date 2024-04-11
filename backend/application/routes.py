@@ -78,7 +78,7 @@ def get_songs():
 
 @app.route('/creatorAlbums', methods=['GET'])
 @jwt_required()
-@access('Admin')
+@access(['Admin', 'Creator'])
 def get_albumss():
     albums = db.session.query(Album).options(
         joinedload(Album.creator).joinedload(Users.role)).all()
@@ -104,7 +104,7 @@ def blacklist_user(id):
 
 @app.route('/like_song/<int:song_id>', methods=['POST'])
 @jwt_required()
-@access('User')
+@access(['User', 'Creator'])
 def like(song_id):
     song = Songs.query.get(song_id)
     if not song:
@@ -115,7 +115,7 @@ def like(song_id):
 
 @app.route('/dislike_song/<int:song_id>', methods=['POST'])
 @jwt_required()
-@access('User')
+@access(['User', 'Creator'])
 def dislike(song_id):
     song = Songs.query.get(song_id)
     if not song:
@@ -126,7 +126,7 @@ def dislike(song_id):
 
 @app.route('/flag_song/<int:song_id>', methods=['POST'])
 @jwt_required()
-@access('User')
+@access(['User', 'Creator'])
 def flag(song_id):
     song = Songs.query.get(song_id)
     if not song:
@@ -138,7 +138,7 @@ def flag(song_id):
 
 @app.route('/unflag_song/<int:song_id>', methods=['POST'])
 @jwt_required()
-@access('User')
+@access(['User', 'Creator'])
 def unflag(song_id):
     song = Songs.query.get(song_id)
     if not song:

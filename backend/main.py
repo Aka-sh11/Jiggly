@@ -9,6 +9,7 @@ from initial_data import initial_data
 from application.worker import celery_init_app
 from celery.schedules import crontab
 from application.tasks import daily_reminder, monthly_report
+from application.cache import cache
 
 def create_app():
     app = Flask(__name__)
@@ -16,6 +17,7 @@ def create_app():
     app.config.from_object(DevelopmentConfig)
     db.init_app(app)
     api.init_app(app)
+    cache.init_app(app)
     jwt = JWTManager(app)
 
     @jwt.user_identity_loader
