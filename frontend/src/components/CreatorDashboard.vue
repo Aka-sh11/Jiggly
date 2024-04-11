@@ -33,7 +33,11 @@ s<template>
         <div class="row-fluid">
             <div class="col-fluid">
                 <div class="box-header">
-                    <h3 style="text-align: left; -webkit-text-fill-color: black;">Songs</h3>
+                    <h3 style="text-align: left; -webkit-text-fill-color: black;">
+                        <router-link to="/songs" style="text-decoration: none;color: rgb(209, 96, 96);">
+                            Songs
+                        </router-link>
+                    </h3>
                     <ul class="nav">
                         <li class="nav-item">
                             <router-link to="/creator/song/upload" class="btn btn-primary btn-sm"
@@ -67,7 +71,11 @@ s<template>
             </div>
             <div class="col-fluid">
                 <div class="box-header">
-                    <h3 style="text-align: left; -webkit-text-fill-color: black;">Albums</h3>
+                    <h3 style="text-align: left; -webkit-text-fill-color: black;">
+                        <router-link to="/albums" style="text-decoration: none;color: rgb(209, 96, 96);">
+                            Albums
+                        </router-link>
+                    </h3>
                     <ul class="nav">
                         <li class="nav-item">
                             <router-link to="/creator/album/create" class="btn btn-primary btn-sm"
@@ -77,7 +85,7 @@ s<template>
                 </div>
                 <div class="row">
                     <div class="overflow-auto">
-                        <div v-for="album in albums" :key="album.id" class="box"
+                        <div v-for="album in albums" :key="album" class="box"
                             style="margin-top: 15px; background-color: gainsboro; flex-direction: column;">
                             <div class="header">
                                 <h5>{{ album.name }}</h5>

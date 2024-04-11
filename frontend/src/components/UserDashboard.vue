@@ -85,7 +85,7 @@ import NavBar from '@/components/NavBar.vue'
 import SongCard from '@/components/SongCard.vue'
 import AlbumCard from '@/components/AlbumCard.vue'
 import PlaylistCard from '@/components/PlaylistCard.vue'
-import axios from 'axios';
+import axios from 'axios'
 import { useAuthStore } from '@/stores/authStore'
 
 export default {

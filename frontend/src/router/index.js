@@ -37,7 +37,13 @@ const router = createRouter({
       path: '/songs',
       name: 'all-songs',
       component: () => import('@/components/ViewTracks.vue'),
-      meta: { requiresAuth: true, role: 'User' }
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/albums',
+      name: 'all-albums',
+      component: () => import('@/components/CreatorAlbums.vue'),
+      meta: { requiresAuth: true }
     },
     {
       path: '/song/:id',

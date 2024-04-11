@@ -27,7 +27,7 @@ export const useAuthStore = defineStore({
           this.isLoggedIn = true;
         }
       } catch (error) {
-        console.error('Error during login:', error);
+        alert('Error during login: '+ error.response.data);
       }
     },
     async logout() {

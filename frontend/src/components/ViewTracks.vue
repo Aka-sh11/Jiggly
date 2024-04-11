@@ -31,9 +31,10 @@
     <div v-else-if="$route.name === 'album' || $route.name === 'admin-albums'" class="Albums">
         <h2>{{ album.name }}</h2>
         <div class="col">
-            <SongCard v-for="song in songs.sort((a, b) => a.title.localeCompare(b.title)) " :key="song.id"
-                :song="song" />
+            <SongCard v-for="song in songs.sort((a, b) => a.title && b.title ? a.title.localeCompare(b.title) : 0)"
+                :key="song.id" :song="song" />
         </div>
+
     </div>
 </template>
 
