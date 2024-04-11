@@ -8,6 +8,11 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
+      path: '/profile',
+      name: 'ProfilePage',
+      component: () => import('@/components/ProfilePage.vue')
+    },
+    {
       path: '/',
       name: 'home',
       component: HomePage

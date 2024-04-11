@@ -263,30 +263,36 @@ export default {
                 });
         },
         deleteSong(id) {
-            axios.delete(`http://127.0.0.1:5000/api/song/${id}`, {
-                headers: {
-                    'Authorization': `Bearer ${this.accessToken}`
-                }
-            })
-                .then(() => {
-                    this.fetchSongs(); // Refresh the list after deletion
+            if (confirm('Are you sure you want to delete this song?'))
+            {
+                axios.delete(`http://127.0.0.1:5000/api/song/${id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`
+                    }
                 })
-                .catch(error => {
-                    alert(error);
-                });
+                    .then(() => {
+                        this.fetchSongs(); // Refresh the list after deletion
+                    })
+                    .catch(error => {
+                        alert(error);
+                    });
+            }
         },
         deleteAlbum(id) {
-            axios.delete(`http://127.0.0.1:5000/api/album/${id}`, {
-                headers: {
-                    'Authorization': `Bearer ${this.accessToken}`
-                }
-            })
-                .then(() => {
-                    this.fetchAlbums(); // Refresh the list after deletion
+            if (confirm('Are you sure you want to delete this album?'))
+            {
+                axios.delete(`http://127.0.0.1:5000/api/album/${id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${this.accessToken}`
+                    }
                 })
-                .catch(error => {
-                    alert(error);
-                });
+                    .then(() => {
+                        this.fetchAlbums(); // Refresh the list after deletion
+                    })
+                    .catch(error => {
+                        alert(error);
+                    });
+            }
         },
         fetchAverageRating() {
             axios.get('http://127.0.0.1:5000/api/ratings', {

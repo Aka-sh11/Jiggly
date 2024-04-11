@@ -197,6 +197,17 @@ class UserAPI(Resource):
         user = Users.query.get(user_id)
         if not user:
             raise NotFound("User not found")
+        Rating.query.filter_by(user_id=user_id).delete()
+        playlists = Playlist.query.filter_by(user_id=user_id).all()
+        for playlist in playlists:
+            Songs_in_Playlist.query.filter_by(
+                playlist_id=playlist.id).delete()
+        Playlist.query.filter_by(user_id=user_id).delete()
+        albums = Album.query.filter_by(user_id=user_id).all()
+        for album in albums:
+            Songs_in_Album.query.filter_by(album_id=album.id).delete()
+        Album.query.filter_by(user_id=user_id).delete()
+        Songs.query.filter_by(user_id=user_id).delete()
         db.session.delete(user)
         db.session.commit()
         return '', 200

@@ -153,14 +153,17 @@ export default {
                 });
         },
         deleteAlbum(id) {
-            axios.delete(`http://127.0.0.1:5000/api/album/${id}`,
+            if (confirm('Are you sure you want to delete this album?'))
+            {
+                axios.delete(`http://127.0.0.1:5000/api/album/${id}`,
                     { headers: { 'Authorization': `Bearer ${this.accessToken}` } })
-                .then(() => {
-                    this.fetchAlbums(); // Refresh the list after deletion
-                })
-                .catch(error => {
-                    alert(error);
-                });
+                    .then(() => {
+                        this.fetchAlbums(); // Refresh the list after deletion
+                    })
+                    .catch(error => {
+                        alert(error);
+                    });
+            }
         }
     },
     computed: {

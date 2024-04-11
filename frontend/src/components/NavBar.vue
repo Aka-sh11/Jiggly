@@ -45,10 +45,10 @@
                             <router-link to="/creator/dashboard" class="nav-link">Dashboard</router-link>
                         </li><strong>⚕️</strong>
                         <li class="nav-item" v-if="user.role === 'User'">
-                            <router-link to="/user/profile" class="nav-link">Profile</router-link>
+                            <router-link to="/profile" class="nav-link">Profile</router-link>
                         </li>
                         <li class="nav-item" v-if="user.role === 'Creator'">
-                            <router-link to="/creator/profile" class="nav-link">Profile</router-link>
+                            <router-link to="/profile" class="nav-link">Profile</router-link>
                         </li><strong v-if="user.role !== 'Admin'">⚕️</strong>
                         <li class="nav-item">
                             <a class="nav-link" @click="logout">Logout</a>

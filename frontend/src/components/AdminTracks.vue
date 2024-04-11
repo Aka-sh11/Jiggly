@@ -159,14 +159,17 @@ export default {
             }
         },
         deleteSong(id) {
-            axios.delete(`http://127.0.0.1:5000/api/song/${id}`,
+            if (confirm('Are you sure you want to delete this song?'))
+            {
+                axios.delete(`http://127.0.0.1:5000/api/song/${id}`,
                     { headers: { 'Authorization': `Bearer ${this.accessToken}` } })
-                .then(() => {
-                    this.loadSongs(); // Refresh the list after deletion
-                })
-                .catch(error => {
-                    alert(error);
-                });
+                    .then(() => {
+                        this.loadSongs(); // Refresh the list after deletion
+                    })
+                    .catch(error => {
+                        alert(error);
+                    });
+            }
         },
         removeFlag(id) {
             axios.post(`http://127.0.0.1:5000/remove_flag/${id}`,
