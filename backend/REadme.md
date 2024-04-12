@@ -34,7 +34,7 @@
 5. Start celery worker and beat
 
     ```
-    celery -A app.celery worker --loglevel=info -B
+    celery -A main.celery worker --loglevel=info -B
     ```
 
 6. Run the application
