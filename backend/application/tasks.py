@@ -1,9 +1,7 @@
-from sqlalchemy import func
 from celery import shared_task
 from .models import Users, Role, Songs, Album
 from datetime import datetime, timedelta, timezone
 from jinja2 import Template
-
 
 from smtplib import SMTP
 from email.mime.multipart import MIMEMultipart
@@ -13,7 +11,6 @@ SMTP_HOST = "localhost"
 SMTP_PORT = 1025
 SENDER_EMAIL = 'admin@jiggly.com'
 SENDER_PASSWORD = ''
-
 
 def send_email(to, subject, content_body):
     msg = MIMEMultipart()
@@ -84,8 +81,7 @@ def monthly_report():
     <h3>Your Monthly Report : Jiggly App</h3>
     Total Songs: {{ total_songs }} <br />
     Total Albums: {{ total_albums }} <br />
-    Total Likes: {{ total_likes }} <br />
-    Average Rating: {{ avg_rating }}
+    Total Likes: {{ total_likes }}
     <br /><br />
     <table border="1">
       <thead>
@@ -130,8 +126,5 @@ def monthly_report():
         content = template.render(songs=songs, total_songs=total_songs, total_albums=total_albums,
                                   total_likes=total_likes, avg_rating=avg_rating)
         send_email(creator.email, subject, content)
-        
-        
-        
     
     

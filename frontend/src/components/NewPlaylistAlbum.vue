@@ -165,7 +165,7 @@ export default {
                     // Redirect to the creator dashboard
                     router.push('/user/dashboard')
                 } catch (error) {
-                    console.error('Failed to create playlist:', error)
+                    alert('Failed to create playlist:'+ error.response.data)
                 }
             } else if (route.name === 'new-album') {
                 try {

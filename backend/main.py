@@ -51,6 +51,11 @@ def send_email(sender, **kwargs):
                              daily_reminder.s(),)
     sender.add_periodic_task(crontab(minute=0, hour=10, day_of_month=1),
                              monthly_report.s(),)
+    
+    # sender.add_periodic_task(crontab(minute='*/1'), daily_reminder.s(),)
+
+
+    # sender.add_periodic_task(crontab(minute='*/1'), monthly_report.s(),)
 
 if __name__ == '__main__':
     initial_data()

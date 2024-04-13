@@ -56,7 +56,11 @@ h5 {
   color: chocolate;
 }
 
-.col,
+.col{
+  display: flex;
+  /* flex-wrap: wrap; */
+  justify-content: space-evenly;
+}
 .col-p {
   display: flex;
   flex-wrap: wrap;
