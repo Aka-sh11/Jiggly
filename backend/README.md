@@ -16,31 +16,37 @@
 
     ```
     python -m venv myenv
-    source myenv/Scripts/activate
-    ```
+    source myenv/bin/activate
+   ```
 
-3. Install dependencies
+4. Install dependencies
 
     ```
     pip install -r requirements.txt
     ```
 
-4. Start redis server
+5. Start redis server
 
     ```
     redis-server
     ```
+    
+6. Start MailHog
 
-5. Start celery worker and beat
+   ```
+   ~/go/bin/MailHog
+   ```
+   
+7. Start celery worker and beat
 
     ```
     celery -A main.celery_app worker --loglevel=info -B
     ```
 
-6. Run the application
+8. Run the application
 
     ```
     python main.py
     ```
-
+    
     It is advised to run a listener on smtp port 8025 to see the emails sent by the application. Otherwise you may face some errors.
