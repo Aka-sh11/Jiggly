@@ -43,4 +43,4 @@
     python main.py
     ```
 
-    It is advised to run a listener on smtp port 1025 to see the emails sent by the application. Otherwise you may face some errors.
+    It is advised to run a listener on smtp port 8025 to see the emails sent by the application. Otherwise you may face some errors.
