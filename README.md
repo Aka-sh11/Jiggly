@@ -1,5 +1,5 @@
 # Jiggly Music App
-I developed ‘Jiggly’, a multi-user web application, as part of my App Development-2 project. This was during my time pursuing a Diploma in Programming, which is a part of the B.S. degree in Data Science & Applications offered by IIT-Madras.
+I developed ‘Jiggly’, a multi-user music streaming web application, as part of my App Development-2 project. This was during my time pursuing a Diploma in Programming, which is a part of the B.S. degree in Data Science & Applications offered by IIT-Madras.
 For a more detailed understanding of the project, I encourage you to view the [Project Report](https://drive.google.com/file/d/1NKqv9D8skraXLpWExnjb1Mrxk15qXh6d/view?usp=sharing).
 
 ## App Screenshots
