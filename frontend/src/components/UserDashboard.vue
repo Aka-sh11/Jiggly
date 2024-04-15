@@ -61,6 +61,12 @@ h5 {
   /* flex-wrap: wrap; */
   justify-content: space-evenly;
 }
+@media screen and (max-width: 720px)
+{
+  .col{
+    flex-wrap: wrap;
+  }
+}
 .col-p {
   display: flex;
   flex-wrap: wrap;
