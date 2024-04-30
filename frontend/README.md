@@ -33,3 +33,6 @@ npm run build
 ```sh
 npm run lint
 ```
+
+
+P.S : Add the folder "audio" containing all the songs inside the public directory.
